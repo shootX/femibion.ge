@@ -1,0 +1,22 @@
+{
+  "name": "Femibion Georgia - ორსულობის ვიტამინები",
+  "short_name": "Femibion",
+  "description": "Femibion - #1 პრენატალური ვიტამინი ევროპაში. ორსულობის და ლაქტაციის ვიტამინები საქართველოში.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#c2185b",
+  "lang": "ka",
+  "icons": [
+    {
+      "src": "/icon-light-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
