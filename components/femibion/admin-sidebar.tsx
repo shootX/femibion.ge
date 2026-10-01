@@ -13,6 +13,7 @@ import {
   ExternalLink,
   Settings,
   LayoutTemplate,
+  Package,
 } from 'lucide-react'
 
 import {
@@ -39,6 +40,11 @@ const navItems = [
     title: 'შეკვეთები',
     href: '/adminpc/orders',
     icon: ShoppingBag,
+  },
+  {
+    title: 'პროდუქცია',
+    href: '/adminpc/products',
+    icon: Package,
   },
   {
     title: 'ბლოგი',

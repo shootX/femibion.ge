@@ -1,8 +1,11 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { isAdmin } from '@/lib/auth'
+import { formatGeorgiaDate } from '@/lib/georgia-time'
 import { getOrders } from '@/lib/orders'
 import { getBlogPosts } from '@/lib/blog'
+import { getOrderStatusMeta, isActiveOrderStatus } from '@/lib/order-status'
+import { getOrderTotalQty } from '@/lib/order-display'
 import {
   ShoppingBag,
   FileText,
@@ -25,7 +28,7 @@ export default async function AdminDashboardPage() {
 
   const [orders, posts] = await Promise.all([getOrders(), getBlogPosts()])
 
-  const pendingOrders = orders.filter((o) => o.status === 'pending').length
+  const activeOrders = orders.filter((o) => isActiveOrderStatus(o.status)).length
   const completedOrders = orders.filter((o) => o.status === 'completed').length
 
   const stats = [
@@ -38,10 +41,10 @@ export default async function AdminDashboardPage() {
       bgColor: 'bg-blue-100',
     },
     {
-      title: 'მოლოდინში',
-      value: pendingOrders,
+      title: 'აქტიური',
+      value: activeOrders,
       icon: Clock,
-      description: 'დასამუშავებელი შეკვეთები',
+      description: 'მუშავდება ან მოლოდინში',
       color: 'text-amber-600',
       bgColor: 'bg-amber-100',
     },
@@ -163,15 +166,15 @@ export default async function AdminDashboardPage() {
             <div className="space-y-4">
               {orders.slice(0, 5).map((order) => (
                 <div key={order.id} className="flex items-center gap-3">
-                  <div className={`h-2 w-2 rounded-full ${order.status === 'pending' ? 'bg-amber-500' : 'bg-green-500'}`} />
+                  <div className={`h-2 w-2 rounded-full ${getOrderStatusMeta(order.status).dotClass}`} />
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium truncate">{order.name}</div>
                     <div className="text-xs text-muted-foreground">
-                      {new Date(order.createdAt).toLocaleDateString('ka-GE')}
+                      {formatGeorgiaDate(order.createdAt, true)} · {getOrderStatusMeta(order.status).label}
                     </div>
                   </div>
                   <div className="text-xs font-semibold">
-                    {order.product1Qty + order.product2Qty} ცალი
+                    {getOrderTotalQty(order)} ცალი
                   </div>
                 </div>
               ))}

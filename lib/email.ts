@@ -1,4 +1,7 @@
 import nodemailer from 'nodemailer'
+import { formatGeorgiaDateTime } from '@/lib/georgia-time'
+import { getOrderProductLines } from '@/lib/order-display'
+import { formatPhoneDisplay } from '@/lib/phone'
 import type { Order } from './orders'
 
 const ORDER_RECIPIENTS = [
@@ -22,18 +25,29 @@ export async function sendOrderEmail(order: Order): Promise<boolean> {
     tls: { rejectUnauthorized: false },
   })
 
-  const products: string[] = []
-  if (order.product1Qty > 0) products.push(`${order.product1Label}: ${order.product1Qty} ცალი`)
-  if (order.product2Qty > 0) products.push(`${order.product2Label}: ${order.product2Qty} ცალი`)
+  const products = getOrderProductLines(order)
+
+  const shippingLine =
+    order.shippingFee == null
+      ? ''
+      : order.shippingFee === 0
+        ? '<p><strong>მიწოდება:</strong> უფასო</p>'
+        : `<p><strong>მიწოდება:</strong> ${order.shippingFee} ₾</p>`
+  const totalLine =
+    order.total != null ? `<p><strong>ჯამი:</strong> ${order.total} ₾</p>` : ''
 
   const html = `
     <h2>ახალი შეკვეთა #${order.id.slice(-7)}</h2>
     <p><strong>სახელი:</strong> ${order.name}</p>
-    <p><strong>ტელეფონი:</strong> +995 ${order.phone}</p>
+    <p><strong>ტელეფონი:</strong> ${formatPhoneDisplay(order.phone)}</p>
+    ${order.city ? `<p><strong>ქალაქი:</strong> ${order.city}</p>` : ''}
     <p><strong>მისამართი:</strong> ${order.address}</p>
     <h3>პროდუქცია:</h3>
     <ul>${products.map((p) => `<li>${p}</li>`).join('')}</ul>
-    <p><em>${new Date(order.createdAt).toLocaleString('ka-GE')}</em></p>
+    ${order.productsTotal != null ? `<p><strong>პროდუქტები:</strong> ${order.productsTotal} ₾</p>` : ''}
+    ${shippingLine}
+    ${totalLine}
+    <p><em>${formatGeorgiaDateTime(order.createdAt)}</em></p>
   `
 
   try {

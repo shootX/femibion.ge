@@ -1,6 +1,7 @@
 'use client'
 
 import { Facebook, Mail, MessageCircle, Send, Twitter } from 'lucide-react'
+import { trackEvent } from '@/lib/analytics'
 
 const BASE = 'https://femibion.ge'
 
@@ -61,6 +62,12 @@ export function ShareButtons({ url, title }: Props) {
           rel="noopener noreferrer"
           className={`inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background text-muted-foreground transition-colors ${color}`}
           aria-label={label}
+          onClick={() => {
+            trackEvent('share_click', { network: label, url: fullUrl })
+            if (label === 'WhatsApp') {
+              trackEvent('whatsapp_click', { location: 'blog_share', url: fullUrl })
+            }
+          }}
         >
           <Icon className="h-4 w-4" />
         </a>

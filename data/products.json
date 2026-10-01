@@ -1,0 +1,34 @@
+{
+  "items": [
+    {
+      "id": "prod_default_1",
+      "name": "Femibion 1",
+      "price": 100,
+      "subtitle": "დაგეგმვა & I ტრიმესტრი",
+      "description": "ოპტიმალური ფორმულა ორსულობის დაგეგმვისა და პირველი ტრიმესტრისთვის. შეიცავს Metafolin®-ს — ოპტიმალური ფორმა მათთვის, ვისაც სურს ფოლატების მაქსიმალური ათვისება.",
+      "features": [
+        "Metafolin®",
+        "ფოლატი 800მკგ"
+      ],
+      "image": "/images/femibion-1.webp",
+      "orderLabel": "Femibion 1 - დაგეგმვა & I ტრიმესტრი",
+      "active": true,
+      "stock": 13
+    },
+    {
+      "id": "prod_default_2",
+      "name": "Femibion 2",
+      "price": 140,
+      "subtitle": "II-III ტრიმესტრი & ლაქტაცია",
+      "description": "გაფართოებული ფორმულა მეორე და მესამე ტრიმესტრისთვის. DHA ომეგა-3 ბავშვის ტვინის განვითარებისთვის.",
+      "features": [
+        "DHA Omega-3",
+        "200მგ DHA"
+      ],
+      "image": "/images/femibion-2.webp",
+      "orderLabel": "Femibion 2 - II-III ტრიმესტრი & ლაქტაცია",
+      "active": true,
+      "stock": 14
+    }
+  ]
+}

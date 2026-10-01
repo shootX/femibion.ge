@@ -1,20 +1,14 @@
 import type { Metadata } from 'next'
 import Script from 'next/script'
-import { Noto_Sans_Georgian, Inter } from 'next/font/google'
+import localFont from 'next/font/local'
 import './globals.css'
 import { getSiteTexts } from '@/lib/texts'
 import { CookieConsent } from '@/components/femibion/cookie-consent'
 
 const GA_ID = 'G-ZHB1WKDT66'
 
-const notoGeorgian = Noto_Sans_Georgian({
-  subsets: ['georgian'],
-  variable: '--font-georgian',
-  display: 'swap',
-})
-
-const inter = Inter({
-  subsets: ['latin'],
+const firaGo = localFont({
+  src: '../FiraGO-Medium.woff2',
   variable: '--font-sans',
   display: 'swap',
 })
@@ -45,6 +39,7 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: '/icon.png', type: 'image/png', sizes: '32x32' },
+      { url: '/icon-192.png', type: 'image/png', sizes: '192x192' },
       { url: '/favicon.ico', sizes: 'any' },
     ],
     apple: '/apple-icon.png',
@@ -59,9 +54,10 @@ export const metadata: Metadata = {
       'Femibion - პრემიუმ ვიტამინები ორსულობის დაგეგმვის, ორსულობის და ლაქტაციის პერიოდისთვის. ოპტიმალური ფორმა მათთვის, ვისაც სურს ფოლატების მაქსიმალური ათვისება. შეუკვეთე ონლაინ.',
     images: [
       {
-        url: '/images/hero-pregnant-woman.jpg',
+        url: '/images/og-image.jpg',
         width: 1200,
         height: 630,
+        type: 'image/jpeg',
         alt: 'Femibion - ორსულობის ვიტამინები საქართველოში',
       },
     ],
@@ -71,25 +67,14 @@ export const metadata: Metadata = {
     title: 'Femibion საქართველო | ორსულობის ვიტამინები',
     description:
       'Femibion - #1 პრენატალური ვიტამინი ევროპაში. ორსულობის და ლაქტაციის ვიტამინები. ოპტიმალური ფორმა მათთვის, ვისაც სურს ფოლატების მაქსიმალური ათვისება.',
-    images: ['/images/hero-pregnant-woman.jpg'],
+    images: ['/images/og-image.jpg'],
   },
-  alternates: {
-    canonical: 'https://femibion.ge',
-    languages: {
-      'ka-GE': 'https://femibion.ge',
-    },
+  formatDetection: {
+    telephone: true,
+    email: true,
+    address: false,
   },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
-  },
+  category: 'health',
   verification: {},
 }
 
@@ -101,37 +86,33 @@ export default async function RootLayout({
   const texts = await getSiteTexts()
 
   return (
-    <html lang="ka" dir="ltr">
+    <html lang="ka-GE" dir="ltr">
       <head>
-        <link rel="icon" href="/favicon.ico?v=3" sizes="any" />
-        <link rel="icon" href="/icon.png?v=3" type="image/png" sizes="32x32" />
-        <link rel="alternate" hrefLang="ka" href="https://femibion.ge" />
-        <link rel="alternate" hrefLang="x-default" href="https://femibion.ge" />
+        <link rel="icon" href="/favicon.ico?v=4" sizes="any" />
+        <link rel="icon" href="/icon.png?v=4" type="image/png" sizes="32x32" />
+        <link rel="icon" href="/icon-192.png?v=4" type="image/png" sizes="192x192" />
+        <link rel="apple-touch-icon" href="/apple-icon.png" />
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#c2185b" />
+        <link rel="preload" as="image" href="/images/hero-pregnant-woman.webp" type="image/webp" fetchPriority="high" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
+        <meta name="theme-color" content="#a84f55" />
       </head>
-      <body className={`${notoGeorgian.variable} ${inter.variable} font-sans antialiased`}>
+      <body className={`${firaGo.variable} font-sans antialiased`}>
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
-        <Script id="gtag" strategy="afterInteractive">
+        <Script id="gtag" strategy="lazyOnload">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-
-            // Default consent state
             if (typeof localStorage !== 'undefined' && localStorage.getItem('cookie-consent') === 'accepted') {
-              gtag('consent', 'default', {
-                'analytics_storage': 'granted'
-              });
+              gtag('consent', 'default', { 'analytics_storage': 'granted' });
             } else {
-              gtag('consent', 'default', {
-                'analytics_storage': 'denied'
-              });
+              gtag('consent', 'default', { 'analytics_storage': 'denied' });
             }
-
             gtag('config', '${GA_ID}');
           `}
         </Script>

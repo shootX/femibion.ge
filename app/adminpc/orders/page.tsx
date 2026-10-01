@@ -2,8 +2,9 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { isAdmin } from '@/lib/auth'
 import { getOrders } from '@/lib/orders'
-import { OrderCard } from './order-card'
-import { Button } from '@/components/ui/button'
+import { getAllProducts } from '@/lib/products'
+import { OrdersPanel } from './orders-panel'
+import { CreateOrderDialog } from './create-order-dialog'
 import { ChevronLeft, ShoppingBag } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -14,7 +15,7 @@ export default async function AdminOrdersPage() {
     redirect('/adminpc')
   }
 
-  const orders = await getOrders()
+  const [orders, products] = await Promise.all([getOrders(), getAllProducts()])
 
   return (
     <div className="space-y-6">
@@ -22,38 +23,24 @@ export default async function AdminOrdersPage() {
         <div className="space-y-1">
           <Link
             href="/adminpc/dashboard"
-            className="flex items-center text-sm text-muted-foreground hover:text-primary transition-colors mb-2"
+            className="mb-2 flex items-center text-sm text-muted-foreground transition-colors hover:text-primary"
           >
             <ChevronLeft className="mr-1 h-4 w-4" /> დაფა
           </Link>
           <div className="flex items-center gap-2">
-            <div className="p-2 bg-primary/10 rounded-lg text-primary">
+            <div className="rounded-lg bg-primary/10 p-2 text-primary">
               <ShoppingBag className="h-6 w-6" />
             </div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">შეკვეთები</h1>
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">შეკვეთების მართვა</h1>
+              <p className="text-sm text-muted-foreground">ფილტრაცია, სტატუსები და დეტალური ნახვა</p>
+            </div>
           </div>
         </div>
+        <CreateOrderDialog products={products} />
       </div>
 
-      {orders.length === 0 ? (
-        <Card className="p-12 flex flex-col items-center justify-center text-center space-y-4">
-          <div className="p-4 bg-muted rounded-full">
-            <ShoppingBag className="h-8 w-8 text-muted-foreground" />
-          </div>
-          <div className="space-y-1">
-            <h3 className="text-lg font-semibold">შეკვეთები არ არის</h3>
-            <p className="text-sm text-muted-foreground">ამჟამად სისტემაში არცერთი შეკვეთა არ იძებნება.</p>
-          </div>
-        </Card>
-      ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {orders.map((order) => (
-            <OrderCard key={order.id} order={order} />
-          ))}
-        </div>
-      )}
+      <OrdersPanel orders={orders} />
     </div>
   )
 }
-
-import { Card } from '@/components/ui/card'

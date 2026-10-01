@@ -1,6 +1,5 @@
 import { readFile, writeFile } from 'fs/promises'
 import { join } from 'path'
-import { unstable_noStore } from 'next/cache'
 
 export type PrivacyPolicyData = {
   title: string
@@ -20,7 +19,6 @@ function getPath() {
 }
 
 export async function getPrivacyPolicy(): Promise<PrivacyPolicyData> {
-  unstable_noStore()
   try {
     const raw = await readFile(getPath(), 'utf-8')
     const parsed = JSON.parse(raw) as Partial<PrivacyPolicyData>

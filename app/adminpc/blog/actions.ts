@@ -7,7 +7,12 @@ import { join } from 'path'
 import { isAdmin } from '@/lib/auth'
 import { addBlogPost, updateBlogPost, deleteBlogPost } from '@/lib/blog'
 import { slugify } from '@/lib/slugify'
-import type { BlogPost } from '@/lib/blog'
+
+function optionalField(value: FormDataEntryValue | null): string | undefined {
+  if (typeof value !== 'string') return undefined
+  const trimmed = value.trim()
+  return trimmed || undefined
+}
 
 export async function uploadBlogImage(formData: FormData): Promise<{ path?: string; error?: string }> {
   const auth = await isAdmin()
@@ -44,17 +49,30 @@ export async function createPost(formData: FormData) {
   const title = (formData.get('title') as string)?.trim()
   const excerpt = (formData.get('excerpt') as string)?.trim()
   const content = (formData.get('content') as string)?.trim()
-  const image = (formData.get('image') as string)?.trim() || '/images/hero-pregnant-woman.jpg'
+  const image = (formData.get('image') as string)?.trim() || '/images/hero-pregnant-woman.webp'
   const date = (formData.get('date') as string)?.trim() || new Date().toISOString().slice(0, 10)
+  const updatedAt = optionalField(formData.get('updatedAt')) || date
 
   if (!slug || !title || !excerpt || !content) {
     return { error: 'შეავსეთ ყველა სავალდებულო ველი' }
   }
 
   try {
-    await addBlogPost({ slug, title, excerpt, content, image, date })
+    await addBlogPost({
+      slug,
+      title,
+      excerpt,
+      content,
+      image,
+      imageAlt: optionalField(formData.get('imageAlt')),
+      date,
+      updatedAt,
+      metaTitle: optionalField(formData.get('metaTitle')),
+      metaDescription: optionalField(formData.get('metaDescription')),
+    })
     revalidatePath('/adminpc/blog')
     revalidatePath('/blog')
+    revalidatePath('/sitemap.xml')
     return { success: true }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'შეცდომა' }
@@ -72,6 +90,7 @@ export async function updatePost(formData: FormData) {
   const content = (formData.get('content') as string)?.trim()
   const image = (formData.get('image') as string)?.trim()
   const date = (formData.get('date') as string)?.trim()
+  const updatedAt = optionalField(formData.get('updatedAt')) || new Date().toISOString().slice(0, 10)
 
   if (!oldSlug || !slug || !title || !excerpt || !content) {
     return { error: 'შეავსეთ ყველა სავალდებულო ველი' }
@@ -84,13 +103,18 @@ export async function updatePost(formData: FormData) {
       excerpt,
       content,
       image: image || undefined,
+      imageAlt: optionalField(formData.get('imageAlt')),
       date: date || undefined,
+      updatedAt,
+      metaTitle: optionalField(formData.get('metaTitle')),
+      metaDescription: optionalField(formData.get('metaDescription')),
     })
     if (!updated) return { error: 'პოსტი ვერ მოიძებნა' }
     revalidatePath('/adminpc/blog')
     revalidatePath('/blog')
     revalidatePath(`/blog/${oldSlug}`)
     if (slug !== oldSlug) revalidatePath(`/blog/${slug}`)
+    revalidatePath('/sitemap.xml')
     return { success: true }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'შეცდომა' }
@@ -108,5 +132,6 @@ export async function removePost(formData: FormData) {
   if (!ok) return { error: 'პოსტი ვერ წაიშალა' }
   revalidatePath('/adminpc/blog')
   revalidatePath('/blog')
+  revalidatePath('/sitemap.xml')
   return { success: true }
 }

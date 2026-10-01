@@ -1,6 +1,5 @@
 import { join } from 'path'
 import { existsSync, statSync } from 'fs'
-import { unstable_noStore } from 'next/cache'
 import {
   DEFAULT_PATHS,
   SLOT_TO_FILE,
@@ -22,7 +21,6 @@ function addCacheBust(path: string, publicDir: string, filePath: string): string
 }
 
 export function getImagePaths(): ImageSlots & { hasLogo: boolean } {
-  unstable_noStore()
   try {
     const paths = { ...DEFAULT_PATHS }
     const base = process.env.PWD || process.cwd()

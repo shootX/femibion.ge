@@ -1,9 +1,9 @@
 import { readFile, writeFile } from 'fs/promises'
 import { join } from 'path'
-import { unstable_noStore } from 'next/cache'
+import { getActiveProducts, type Product } from '@/lib/products'
 
 export type SiteTexts = {
-  header: { brand: string; logoLetter: string; navHome: string; navProducts: string; navBlog: string; navOrder: string }
+  header: { brand: string; logoLetter: string; navHome: string; navProducts: string; navBlog: string; navFaq: string; navOrder: string }
   hero: {
     badge: string
     title: string
@@ -16,11 +16,14 @@ export type SiteTexts = {
     sectionSubtitle: string
     ctaOrder: string
     items: Array<{
+      id?: string
       name: string
       price?: number
       subtitle: string
       description: string
       features: string[]
+      image?: string
+      orderLabel?: string
     }>
   }
   pregnancy: {
@@ -68,6 +71,7 @@ export type SiteTexts = {
     certificatesTitle: string
     certificatesNote: string
     copyright: string
+    faqLinkLabel?: string
     privacyLinkLabel: string
     warningText?: string
     cookies: {
@@ -152,7 +156,7 @@ const DEFAULT_TEXTS: SiteTexts = {
   order: {
     title: 'შეუკვეთე ახლავე',
     subtitle: 'შეავსე ფორმა და მიიღე პროდუქტი პირდაპირ სახლში',
-    shippingInfo: 'მიწოდება 1-3 დღეში | თბილისში უფასო | რეგიონებში 10 ლარი | მთელი საქართველო',
+    shippingInfo: 'თბილისში მიწოდება 1-3 სამუშაო დღე - მიწოდება უფასო | რეგიონებში მიწოდება 3-7 დღემდე - მიწოდების ღირებულება 15 ლარი.',
     nameLabel: 'სახელი და გვარი',
     namePlaceholder: 'მარიამ ბერიძე',
     phoneLabel: 'ტელეფონის ნომერი',
@@ -184,6 +188,7 @@ const DEFAULT_TEXTS: SiteTexts = {
     certificatesTitle: 'სერტიფიკატები',
     certificatesNote: 'სამედიცინო სერტიფიცირებული პროდუქტი',
     copyright: '© 2026 Femibion Georgia. ყველა უფლება დაცულია.',
+    faqLinkLabel: 'ხ.დ.კ.',
     privacyLinkLabel: 'კონფიდენციალურობის პოლიტიკა',
     warningText: 'საკვები დანამატი არ ანაცვლებს ბალანსირებულ კვებას. გამოყენებამდე გაიარეთ კონსულტაცია მკურნალ ექიმთან.',
     cookies: {
@@ -219,13 +224,33 @@ function getTextsPath() {
 }
 
 export async function getSiteTexts(): Promise<SiteTexts> {
-  unstable_noStore()
   try {
     const data = await readFile(getTextsPath(), 'utf-8')
     const parsed = JSON.parse(data) as Partial<SiteTexts>
-    return deepMerge(DEFAULT_TEXTS, parsed)
+    const merged = deepMerge(DEFAULT_TEXTS, parsed)
+    const products = await getActiveProducts()
+    merged.products.items = products.map(productToSiteItem)
+    if (products[0]) merged.order.product1Option = products[0].orderLabel
+    if (products[1]) merged.order.product2Option = products[1].orderLabel
+    return merged
   } catch {
-    return DEFAULT_TEXTS
+    const products = await getActiveProducts()
+    const merged = JSON.parse(JSON.stringify(DEFAULT_TEXTS)) as SiteTexts
+    merged.products.items = products.map(productToSiteItem)
+    return merged
+  }
+}
+
+function productToSiteItem(p: Product) {
+  return {
+    id: p.id,
+    name: p.name,
+    price: p.price,
+    subtitle: p.subtitle,
+    description: p.description,
+    features: p.features,
+    image: p.image,
+    orderLabel: p.orderLabel,
   }
 }
 

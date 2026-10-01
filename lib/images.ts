@@ -10,24 +10,24 @@ export type ImageSlots = {
 }
 
 export const DEFAULT_PATHS: ImageSlots = {
-  hero: '/images/hero-pregnant-woman.jpg',
-  product1: '/images/femibion-1.jpg',
-  product2: '/images/femibion-2.jpg',
-  logo: '/images/logo.png',
+  hero: '/images/hero-pregnant-woman.webp',
+  product1: '/images/femibion-1.webp',
+  product2: '/images/femibion-2.webp',
+  logo: '/images/logo.webp',
   favicon: '/icon.svg',
   appleIcon: '/apple-icon.png',
 }
 
 export const SLOT_TO_FILE: Record<keyof ImageSlots, string> = {
-  hero: 'images/hero-pregnant-woman.jpg',
-  product1: 'images/femibion-1.jpg',
-  product2: 'images/femibion-2.jpg',
-  logo: 'images/logo.png',
+  hero: 'images/hero-pregnant-woman.webp',
+  product1: 'images/femibion-1.webp',
+  product2: 'images/femibion-2.webp',
+  logo: 'images/logo.webp',
   favicon: 'icon.svg',
   appleIcon: 'apple-icon.png',
 }
 
-export const LOGO_EXTENSIONS = ['png', 'svg', 'jpg', 'jpeg', 'webp'] as const
+export const LOGO_EXTENSIONS = ['webp', 'png', 'svg', 'jpg', 'jpeg'] as const
 
 export function getPublicPath(slot: keyof ImageSlots): string {
   return join(process.cwd(), 'public', SLOT_TO_FILE[slot])

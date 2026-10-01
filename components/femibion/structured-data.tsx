@@ -1,148 +1,101 @@
-export function StructuredData() {
+import { getActiveProducts } from '@/lib/products'
+import { pageSlugForProduct, productJsonLd } from '@/lib/product-pages'
+
+export async function StructuredData() {
+  const products = await getActiveProducts()
+  const productSchemas = products.flatMap((product, index) => {
+    const slug = pageSlugForProduct(product, index)
+    return slug ? [productJsonLd(product, slug)] : []
+  })
+
   const organizationSchema = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
+    '@id': 'https://femibion.ge/#organization',
     name: 'Femibion Georgia',
+    alternateName: ['ფემიბიონი საქართველო', 'Femibion საქართველო'],
     url: 'https://femibion.ge',
-    logo: 'https://femibion.ge/images/logo.jpg',
+    logo: {
+      '@type': 'ImageObject',
+      url: 'https://femibion.ge/images/logo.webp',
+      width: 600,
+      height: 60,
+    },
+    image: 'https://femibion.ge/images/hero-pregnant-woman.webp',
     description: '#1 პრენატალური ვიტამინი ევროპაში. ორსულობის და ლაქტაციის ვიტამინები საქართველოში.',
     address: {
       '@type': 'PostalAddress',
       addressLocality: 'თბილისი',
+      addressRegion: 'თბილისი',
       addressCountry: 'GE',
     },
     contactPoint: {
       '@type': 'ContactPoint',
       telephone: '+995595947450',
+      email: 'info@femibion.ge',
       contactType: 'sales',
-      availableLanguage: ['Georgian'],
+      areaServed: 'GE',
+      availableLanguage: ['Georgian', 'English'],
     },
-    sameAs: ['https://www.facebook.com/femibiongeorgia'],
+    sameAs: [
+      'https://www.facebook.com/femibiongeorgia',
+      'https://www.instagram.com/femibiongeorgia',
+    ],
+  }
+
+  const localBusinessSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Store',
+    '@id': 'https://femibion.ge/#store',
+    name: 'Femibion Georgia',
+    url: 'https://femibion.ge',
+    image: 'https://femibion.ge/images/logo.webp',
+    telephone: '+995595947450',
+    email: 'info@femibion.ge',
+    priceRange: '₾100–₾140',
+    currenciesAccepted: 'GEL',
+    paymentAccepted: 'Cash, Credit Card',
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'თბილისი',
+      addressCountry: 'GE',
+    },
+    areaServed: { '@type': 'Country', name: 'Georgia' },
+    openingHoursSpecification: [
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        opens: '10:00',
+        closes: '19:00',
+      },
+    ],
   }
 
   const websiteSchema = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
+    '@id': 'https://femibion.ge/#website',
     name: 'Femibion Georgia',
     url: 'https://femibion.ge',
-    inLanguage: 'ka',
+    inLanguage: 'ka-GE',
     description: 'Femibion - პრენატალური ვიტამინები ორსულობის დაგეგმვის, ორსულობის და ლაქტაციის პერიოდისთვის.',
-  }
-
-  const product1Schema = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: 'Femibion 1',
-    description:
-      'ოპტიმალური ფორმულა ორსულობის დაგეგმვისა და პირველი ტრიმესტრისთვის. შეიცავს Metafolin® - ფოლიუმის მჟავას აქტიურ ფორმას, ფოლატი 800მკგ.',
-    image: 'https://femibion.ge/images/femibion-1.jpg',
-    brand: { '@type': 'Brand', name: 'Femibion' },
-    category: 'პრენატალური ვიტამინები',
-    offers: {
-      '@type': 'Offer',
-      url: 'https://femibion.ge/#order',
-      availability: 'https://schema.org/InStock',
-      price: 100,
-      priceCurrency: 'GEL',
-      seller: { '@type': 'Organization', name: 'Femibion Georgia' },
-      shippingDetails: {
-        '@type': 'OfferShippingDetails',
-        shippingRate: {
-          '@type': 'MonetaryAmount',
-          value: 0,
-          currency: 'GEL',
-        },
-        deliveryTime: {
-          '@type': 'ShippingDeliveryTime',
-          handlingTime: {
-            '@type': 'QuantitativeValue',
-            minValue: 0,
-            maxValue: 1,
-            unitCode: 'DAY',
-          },
-          transitTime: {
-            '@type': 'QuantitativeValue',
-            minValue: 1,
-            maxValue: 3,
-            unitCode: 'DAY',
-          },
-        },
-        shippingDestination: {
-          '@type': 'DefinedRegion',
-          addressCountry: 'GE',
-        },
+    publisher: { '@id': 'https://femibion.ge/#organization' },
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: 'https://femibion.ge/blog?q={search_term_string}',
       },
-      hasMerchantReturnPolicy: {
-        '@type': 'MerchantReturnPolicy',
-        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
-        merchantReturnDays: 3,
-        returnMethod: 'https://schema.org/ReturnByMail',
-        refundType: 'https://schema.org/FullRefund',
-        customerService: {
-          '@type': 'ContactPoint',
-          telephone: '+995595947450',
-          contactType: 'customer service',
-        },
-      },
+      'query-input': 'required name=search_term_string',
     },
   }
 
-  const product2Schema = {
+  const breadcrumbSchema = {
     '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: 'Femibion 2',
-    description:
-      'გაფართოებული ფორმულა მეორე და მესამე ტრიმესტრისთვის და ლაქტაციის პერიოდისთვის. DHA ომეგა-3 200მგ ბავშვის ტვინის განვითარებისთვის.',
-    image: 'https://femibion.ge/images/femibion-2.jpg',
-    brand: { '@type': 'Brand', name: 'Femibion' },
-    category: 'პრენატალური ვიტამინები',
-    offers: {
-      '@type': 'Offer',
-      url: 'https://femibion.ge/#order',
-      availability: 'https://schema.org/InStock',
-      price: 140,
-      priceCurrency: 'GEL',
-      seller: { '@type': 'Organization', name: 'Femibion Georgia' },
-      shippingDetails: {
-        '@type': 'OfferShippingDetails',
-        shippingRate: {
-          '@type': 'MonetaryAmount',
-          value: 0,
-          currency: 'GEL',
-        },
-        deliveryTime: {
-          '@type': 'ShippingDeliveryTime',
-          handlingTime: {
-            '@type': 'QuantitativeValue',
-            minValue: 0,
-            maxValue: 1,
-            unitCode: 'DAY',
-          },
-          transitTime: {
-            '@type': 'QuantitativeValue',
-            minValue: 1,
-            maxValue: 3,
-            unitCode: 'DAY',
-          },
-        },
-        shippingDestination: {
-          '@type': 'DefinedRegion',
-          addressCountry: 'GE',
-        },
-      },
-      hasMerchantReturnPolicy: {
-        '@type': 'MerchantReturnPolicy',
-        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
-        merchantReturnDays: 3,
-        returnMethod: 'https://schema.org/ReturnByMail',
-        refundType: 'https://schema.org/FullRefund',
-        customerService: {
-          '@type': 'ContactPoint',
-          telephone: '+995595947450',
-          contactType: 'customer service',
-        },
-      },
-    },
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'მთავარი', item: 'https://femibion.ge' },
+    ],
   }
 
   const faqSchema = {
@@ -189,6 +142,14 @@ export function StructuredData() {
           text: 'Femibion 1-ის მიღება რეკომენდებულია ორსულობის დაგეგმვის ეტაპიდან (მინიმუმ 4 კვირით ადრე) და გაგრძელდეს პირველი ტრიმესტრის ბოლომდე. მე-13 კვირიდან გადაერთეთ Femibion 2-ზე, რომელიც ლაქტაციის პერიოდშიც გამოიყენება.',
         },
       },
+      {
+        '@type': 'Question',
+        name: 'რატომ არის DHA ომეგა-3 მნიშვნელოვანი ორსულობის დროს?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'DHA (დოკოზაჰექსაენის მჟავა) არის ომეგა-3 ცხიმოვანი მჟავა, რომელიც აუცილებელია ნაყოფის ტვინის და თვალების ნორმალური განვითარებისთვის. Femibion 2 შეიცავს 200მგ DHA-ს, რაც რეკომენდებული დღიური დოზაა ორსულებისთვის.',
+        },
+      },
     ],
   }
 
@@ -200,16 +161,23 @@ export function StructuredData() {
       />
       <script
         type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
+      />
+      <script
+        type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(product1Schema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(product2Schema) }}
-      />
+      {productSchemas.map((schema) => (
+        <script
+          key={schema['@id']}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      ))}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}

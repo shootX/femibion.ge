@@ -1,6 +1,5 @@
 import { readFile, writeFile } from 'fs/promises'
 import { join } from 'path'
-import { unstable_noStore } from 'next/cache'
 
 export type BlogPost = {
   slug: string
@@ -8,7 +7,11 @@ export type BlogPost = {
   excerpt: string
   content: string
   image: string
+  imageAlt?: string
   date: string
+  updatedAt?: string
+  metaTitle?: string
+  metaDescription?: string
 }
 
 const BLOG_FILE = 'data/blog-posts.json'
@@ -18,10 +21,9 @@ function getBlogPath(): string {
   return join(base, BLOG_FILE)
 }
 
-const DEFAULT_IMAGE = '/images/hero-pregnant-woman.jpg'
+const DEFAULT_IMAGE = '/images/hero-pregnant-woman.webp'
 
 export async function getBlogPosts(): Promise<BlogPost[]> {
-  unstable_noStore()
   try {
     const path = getBlogPath()
     const data = await readFile(path, 'utf-8')
@@ -32,7 +34,11 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
       excerpt: p.excerpt ?? '',
       content: p.content ?? '',
       image: p.image ?? DEFAULT_IMAGE,
+      imageAlt: optionalText(p.imageAlt),
       date: p.date ?? new Date().toISOString().slice(0, 10),
+      updatedAt: optionalText(p.updatedAt),
+      metaTitle: optionalText(p.metaTitle),
+      metaDescription: optionalText(p.metaDescription),
     }))
     return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
   } catch {
@@ -66,14 +72,23 @@ export async function addBlogPost(post: Omit<BlogPost, 'date'> & { date?: string
 
 export async function updateBlogPost(
   oldSlug: string,
-  updates: Partial<Omit<BlogPost, 'slug'>>
+  updates: Partial<BlogPost>
 ): Promise<BlogPost | null> {
   const posts = await getBlogPosts()
   const idx = posts.findIndex((p) => p.slug === oldSlug)
   if (idx === -1) return null
-  posts[idx] = { ...posts[idx], ...updates }
+  const next: BlogPost = { ...posts[idx], ...updates }
+  if ('imageAlt' in updates) next.imageAlt = optionalText(updates.imageAlt)
+  if ('metaTitle' in updates) next.metaTitle = optionalText(updates.metaTitle)
+  if ('metaDescription' in updates) next.metaDescription = optionalText(updates.metaDescription)
+  if ('updatedAt' in updates) next.updatedAt = optionalText(updates.updatedAt) || posts[idx].updatedAt
+  posts[idx] = next
   await savePosts(posts)
   return posts[idx]
+}
+
+export function countWords(text: string): number {
+  return text.trim().split(/\s+/).filter(Boolean).length
 }
 
 export async function deleteBlogPost(slug: string): Promise<boolean> {
@@ -82,6 +97,51 @@ export async function deleteBlogPost(slug: string): Promise<boolean> {
   if (filtered.length === posts.length) return false
   await savePosts(filtered)
   return true
+}
+
+function optionalText(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined
+  const trimmed = value.trim()
+  return trimmed || undefined
+}
+
+export function articleTitle(post: BlogPost): string {
+  return post.metaTitle?.trim() || post.title
+}
+
+export function articleDescription(post: BlogPost): string {
+  return post.metaDescription?.trim() || post.excerpt
+}
+
+export function articleImageAlt(post: BlogPost): string {
+  return post.imageAlt?.trim() || post.title
+}
+
+export function relatedPosts(posts: BlogPost[], slug: string, limit = 3): BlogPost[] {
+  const current = posts.find((post) => post.slug === slug)
+  if (!current) return posts.filter((post) => post.slug !== slug).slice(0, limit)
+
+  const words = new Set(
+    current.title
+      .toLowerCase()
+      .split(/\s+/)
+      .map((word) => word.replace(/[^\p{L}\p{N}]/gu, ''))
+      .filter((word) => word.length > 3)
+  )
+
+  return posts
+    .filter((post) => post.slug !== slug)
+    .map((post) => {
+      const score = post.title
+        .toLowerCase()
+        .split(/\s+/)
+        .map((word) => word.replace(/[^\p{L}\p{N}]/gu, ''))
+        .filter((word) => words.has(word)).length
+      return { post, score }
+    })
+    .sort((a, b) => b.score - a.score || b.post.date.localeCompare(a.post.date))
+    .slice(0, limit)
+    .map((item) => item.post)
 }
 
 export function truncateExcerpt(text: string, maxChars: number = 200): string {

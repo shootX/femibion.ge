@@ -1,4 +1,3 @@
-import { cookies } from 'next/headers'
 import type { Metadata } from 'next'
 import { getSiteTexts } from '@/lib/texts'
 import { getImagePaths } from '@/lib/images-server'
@@ -6,20 +5,64 @@ import { getPrivacyPolicy } from '@/lib/privacy-policy'
 import { Header } from '@/components/femibion/header'
 import { Footer } from '@/components/femibion/footer'
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
+export const revalidate = 86400
+
+function normalizePolicyContent(html: string): string {
+  return html
+    .replace(/<!doctype[^>]*>/gi, '')
+    .replace(/<html[^>]*>/gi, '')
+    .replace(/<\/html>/gi, '')
+    .replace(/<head[\s\S]*?<\/head>/gi, '')
+    .replace(/<body[^>]*>/gi, '')
+    .replace(/<\/body>/gi, '')
+    .replace(/<h1[^>]*>[\s\S]*?<\/h1>/i, '')
+    .replace(/<p>\s*<b>\s*უკანასკნელი\s+განახლება:[\s\S]*?<\/b>\s*<\/p>/i, '')
+    .trim()
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   const policy = await getPrivacyPolicy()
   return {
     title: policy.title,
     description: 'Femibion Georgia — პერსონალური მონაცემების დამუშავების პოლიტიკა.',
-    alternates: { canonical: 'https://femibion.ge/privacy' },
+    alternates: {
+      canonical: 'https://femibion.ge/privacy',
+      languages: {
+        ka: 'https://femibion.ge/privacy',
+        'x-default': 'https://femibion.ge/privacy',
+      },
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+    openGraph: {
+      title: `${policy.title} | Femibion Georgia`,
+      description: 'Femibion Georgia — პერსონალური მონაცემების დამუშავების პოლიტიკა.',
+      url: 'https://femibion.ge/privacy',
+      type: 'website',
+      locale: 'ka_GE',
+      siteName: 'Femibion Georgia',
+      images: [
+        {
+          url: '/images/og-image.jpg',
+          width: 1200,
+          height: 630,
+          type: 'image/jpeg',
+          alt: 'Femibion Georgia',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${policy.title} | Femibion Georgia`,
+      description: 'Femibion Georgia — პერსონალური მონაცემების დამუშავების პოლიტიკა.',
+      images: ['/images/og-image.jpg'],
+    },
   }
 }
 
 export default async function PrivacyPage() {
-  await cookies()
   const [texts, images, policy] = await Promise.all([
     getSiteTexts(),
     getImagePaths(),
@@ -42,7 +85,7 @@ export default async function PrivacyPage() {
           <p className="mt-2 text-sm text-muted-foreground">ბოლო განახლება: {dateStr}</p>
           <div
             className="privacy-content mt-8 space-y-4 text-foreground leading-relaxed [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mt-8 [&_h2]:mb-3 [&_p]:text-muted-foreground [&_ul]:list-disc [&_ul]:pl-6 [&_li]:text-muted-foreground"
-            dangerouslySetInnerHTML={{ __html: policy.contentHtml }}
+            dangerouslySetInnerHTML={{ __html: normalizePolicyContent(policy.contentHtml) }}
           />
         </div>
       </main>

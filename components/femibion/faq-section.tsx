@@ -41,53 +41,50 @@ export function FaqSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
 
   return (
-    <section
-      className="py-16 md:py-24 bg-secondary/30"
-      aria-label="ხშირად დასმული კითხვები Femibion-ის შესახებ"
-    >
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl mb-4 text-balance">
-            ხშირად დასმული კითხვები
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+    <section className="section-pad bg-background/85" aria-label="ხშირად დასმული კითხვები">
+      <div className="wrap">
+        <div className="mb-12 text-center">
+          <span className="eyebrow mb-4 justify-center">სასარგებლო ინფორმაცია</span>
+          <h2 className="section-heading">ხშირად დასმული კითხვები</h2>
+          <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-muted-foreground">
             ყველაფერი რაც უნდა იცოდეთ Femibion პრენატალურ ვიტამინებზე
           </p>
         </div>
 
-        <div className="max-w-3xl mx-auto space-y-3">
-          {FAQ_ITEMS.map((item, idx) => (
-            <div
-              key={idx}
-              className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden"
-            >
-              <button
-                onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
-                className="w-full flex items-center justify-between p-5 md:p-6 text-left gap-4"
-                aria-expanded={openIndex === idx}
-              >
-                <h3 className="font-semibold text-foreground text-base md:text-lg">
-                  {item.question}
-                </h3>
-                <ChevronDown
-                  className={cn(
-                    'h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-200',
-                    openIndex === idx && 'rotate-180'
-                  )}
-                />
-              </button>
+        <div className="mx-auto max-w-3xl space-y-3">
+          {FAQ_ITEMS.map((item, idx) => {
+            const open = openIndex === idx
+            return (
               <div
-                className={cn(
-                  'overflow-hidden transition-all duration-300',
-                  openIndex === idx ? 'max-h-96 pb-5 md:pb-6' : 'max-h-0'
-                )}
+                key={idx}
+                className="overflow-hidden rounded-2xl border border-border/70 bg-card/75 transition-colors hover:bg-card"
               >
-                <p className="px-5 md:px-6 text-muted-foreground leading-relaxed">
-                  {item.answer}
-                </p>
+                <button
+                  onClick={() => setOpenIndex(open ? null : idx)}
+                  className="flex w-full cursor-pointer items-center justify-between gap-4 p-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary md:p-6"
+                  aria-expanded={open}
+                >
+                  <h3 className="font-medium leading-7 text-foreground md:text-lg">{item.question}</h3>
+                  <ChevronDown
+                    className={cn(
+                      'h-5 w-5 shrink-0 text-primary transition-transform duration-200',
+                      open && 'rotate-180'
+                    )}
+                  />
+                </button>
+                <div
+                  className={cn(
+                    'overflow-hidden transition-all duration-300',
+                    open ? 'max-h-96' : 'max-h-0'
+                  )}
+                >
+                  <p className="border-t border-border/50 px-5 pb-5 pt-4 leading-7 text-muted-foreground md:px-6 md:pb-6">
+                    {item.answer}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </section>

@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { truncateExcerpt } from '@/lib/blog'
+import { articleImageAlt, truncateExcerpt } from '@/lib/blog'
 import type { BlogPost } from '@/lib/blog'
 
 const EXCERPT_LENGTH = 200
@@ -11,23 +11,22 @@ export function BlogPostCard({ post, readMoreText }: { post: BlogPost; readMoreT
   return (
     <Link
       href={`/blog/${post.slug}`}
-      className="group block overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all hover:shadow-lg hover:-translate-y-1"
+      className="group block cursor-pointer overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm transition-all duration-200 hover:shadow-[var(--shadow-card)]"
     >
       <div className="relative aspect-[16/10] overflow-hidden bg-muted">
         <Image
           src={post.image}
-          alt={post.title}
+          alt={articleImageAlt(post)}
           fill
-          unoptimized
           className="object-cover transition-transform duration-300 group-hover:scale-105"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
         />
       </div>
-      <div className="p-4 md:p-5">
-        <h2 className="text-lg font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+      <div className="p-5">
+        <h2 className="line-clamp-2 text-lg font-semibold text-foreground transition-colors group-hover:text-primary">
           {post.title}
         </h2>
-        <p className="mt-2 text-sm text-muted-foreground line-clamp-3">{excerpt}</p>
+        <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">{excerpt}</p>
         <span className="mt-3 inline-block text-sm font-medium text-primary group-hover:underline">
           {readMoreText} →
         </span>

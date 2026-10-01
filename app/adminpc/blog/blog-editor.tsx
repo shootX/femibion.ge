@@ -31,13 +31,18 @@ export function BlogEditor({ mode, post }: BlogEditorProps) {
   const fileRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
 
+  const today = new Date().toISOString().slice(0, 10)
   const defaultValues = post ?? {
     slug: '',
     title: '',
     excerpt: '',
     content: '',
-    image: '/images/hero-pregnant-woman.jpg',
-    date: new Date().toISOString().slice(0, 10),
+    image: '/images/hero-pregnant-woman.webp',
+    imageAlt: '',
+    date: today,
+    updatedAt: today,
+    metaTitle: '',
+    metaDescription: '',
   }
 
   const currentImage = imagePath ?? defaultValues.image
@@ -137,6 +142,26 @@ export function BlogEditor({ mode, post }: BlogEditorProps) {
             />
           </div>
           <div>
+            <Label htmlFor="metaTitle">Meta title</Label>
+            <Input
+              id="metaTitle"
+              name="metaTitle"
+              defaultValue={defaultValues.metaTitle ?? ''}
+              placeholder="ცარიელი — სათაური"
+            />
+          </div>
+          <div>
+            <Label htmlFor="metaDescription">Meta description</Label>
+            <Textarea
+              id="metaDescription"
+              name="metaDescription"
+              defaultValue={defaultValues.metaDescription ?? ''}
+              rows={2}
+              placeholder="ცარიელი — მოკლე აღწერა"
+              className="resize-none"
+            />
+          </div>
+          <div>
             <Label htmlFor="content">სრული ტექსტი</Label>
             <Textarea
               id="content"
@@ -158,7 +183,7 @@ export function BlogEditor({ mode, post }: BlogEditorProps) {
                   className="object-cover"
                   unoptimized
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/images/hero-pregnant-woman.jpg'
+                    (e.target as HTMLImageElement).src = '/images/hero-pregnant-woman.webp'
                   }}
                 />
               </div>
@@ -191,12 +216,30 @@ export function BlogEditor({ mode, post }: BlogEditorProps) {
             </div>
           </div>
           <div>
+            <Label htmlFor="imageAlt">სურათის alt ტექსტი</Label>
+            <Input
+              id="imageAlt"
+              name="imageAlt"
+              defaultValue={defaultValues.imageAlt ?? ''}
+              placeholder="ცარიელი — სათაური"
+            />
+          </div>
+          <div>
             <Label htmlFor="date">თარიღი</Label>
             <Input
               id="date"
               name="date"
               type="date"
-              defaultValue={defaultValues.date}
+              defaultValue={defaultValues.date.slice(0, 10)}
+            />
+          </div>
+          <div>
+            <Label htmlFor="updatedAt">განახლების თარიღი</Label>
+            <Input
+              id="updatedAt"
+              name="updatedAt"
+              type="date"
+              defaultValue={(defaultValues.updatedAt || defaultValues.date).slice(0, 10)}
             />
           </div>
           <div className="flex justify-end gap-2">

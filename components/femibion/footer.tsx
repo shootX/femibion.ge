@@ -1,6 +1,9 @@
+'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
 import { Facebook, Instagram, MapPin, Phone, Mail, Shield, Award } from 'lucide-react'
+import { trackEvent } from '@/lib/analytics'
 
 type FooterTexts = {
   brand: string
@@ -14,65 +17,78 @@ type FooterTexts = {
   certificatesTitle: string
   certificatesNote: string
   copyright: string
+  faqLinkLabel?: string
   privacyLinkLabel?: string
   warningText?: string
 }
 type FooterImages = { logo: string; hasLogo: boolean }
 
 export function Footer({ texts, images }: { texts: FooterTexts; images?: FooterImages }) {
+  const phoneHref = `tel:${texts.phone.replace(/[^\d+]/g, '')}`
+
   return (
-    <footer className="bg-foreground text-background py-12 md:py-16" role="contentinfo" aria-label="ფუტერი - Femibion Georgia კონტაქტი">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+    <footer
+      className="border-t border-white/10 bg-footer py-14 text-white md:py-20"
+      role="contentinfo"
+      aria-label="ფუტერი"
+    >
+      <div className="wrap">
+        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-[1.2fr_1fr_0.8fr_0.9fr]">
           <div>
-            <div className="flex items-center gap-2 mb-4">
+            <div className="mb-4 flex items-center gap-2">
               {images?.hasLogo && images.logo ? (
-                <div className="relative h-10 w-24 shrink-0 sm:w-28">
+                <div className="relative h-10 w-28">
                   <Image
                     src={images.logo}
                     alt={texts.brand}
                     fill
-                    unoptimized
-                    className="object-contain object-left"
-                    sizes="96px"
+                    className="object-contain object-left brightness-0 invert"
+                    sizes="112px"
                   />
                 </div>
               ) : (
-                <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-lg">{texts.logoLetter}</span>
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
+                  <span className="font-bold">{texts.logoLetter}</span>
                 </div>
               )}
-              <span className="text-2xl font-semibold">{texts.brand}</span>
             </div>
-            <p className="text-background/70 leading-relaxed">{texts.description}</p>
+            <p className="max-w-xs text-sm leading-7 text-white/70">{texts.description}</p>
           </div>
 
           <div>
-            <h3 className="font-semibold text-lg mb-4">{texts.contactTitle}</h3>
-            <ul className="space-y-3">
-              <li className="flex items-center gap-3 text-background/70">
-                <MapPin className="h-5 w-5 shrink-0" />
-                <span>{texts.address}</span>
+            <h3 className="mb-5 text-sm font-semibold uppercase tracking-[0.12em] text-white/90">{texts.contactTitle}</h3>
+            <ul className="space-y-3 text-sm text-white/70">
+              <li className="flex items-start gap-3">
+                <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[#d9b58e]" aria-hidden />
+                {texts.address}
               </li>
-              <li className="flex items-center gap-3 text-background/70">
-                <Phone className="h-5 w-5 shrink-0" />
-                <span>{texts.phone}</span>
+              <li className="flex items-center gap-3">
+                <Phone className="h-5 w-5 shrink-0 text-[#d9b58e]" aria-hidden />
+                <a
+                  href={phoneHref}
+                  onClick={() => trackEvent('call_click', { location: 'footer', phone: texts.phone })}
+                  className="cursor-pointer transition-colors hover:text-white"
+                >
+                  {texts.phone}
+                </a>
               </li>
-              <li className="flex items-center gap-3 text-background/70">
-                <Mail className="h-5 w-5 shrink-0" />
-                <span>{texts.email}</span>
+              <li className="flex items-center gap-3">
+                <Mail className="h-5 w-5 shrink-0 text-[#d9b58e]" aria-hidden />
+                <a href={`mailto:${texts.email}`} className="cursor-pointer transition-colors hover:text-white">
+                  {texts.email}
+                </a>
               </li>
             </ul>
           </div>
 
           <div>
-            <h3 className="font-semibold text-lg mb-4">{texts.socialTitle}</h3>
+            <h3 className="mb-5 text-sm font-semibold uppercase tracking-[0.12em] text-white/90">{texts.socialTitle}</h3>
             <div className="flex gap-3">
               <a
                 href="https://www.facebook.com/femibiongeorgia"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="h-12 w-12 rounded-full bg-background/10 flex items-center justify-center transition-colors hover:bg-primary"
+                className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/5 transition-colors hover:bg-white/15"
                 aria-label="Facebook"
               >
                 <Facebook className="h-5 w-5" />
@@ -81,8 +97,8 @@ export function Footer({ texts, images }: { texts: FooterTexts; images?: FooterI
                 href="https://www.instagram.com/femibiongeorgia"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="h-12 w-12 rounded-full bg-background/10 flex items-center justify-center transition-colors hover:bg-primary"
-                aria-label="Femibion Georgia Instagram"
+                className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/5 transition-colors hover:bg-white/15"
+                aria-label="Instagram"
               >
                 <Instagram className="h-5 w-5" />
               </a>
@@ -90,36 +106,42 @@ export function Footer({ texts, images }: { texts: FooterTexts; images?: FooterI
           </div>
 
           <div>
-            <h3 className="font-semibold text-lg mb-4">{texts.certificatesTitle}</h3>
+            <h3 className="mb-5 text-sm font-semibold uppercase tracking-[0.12em] text-white/90">{texts.certificatesTitle}</h3>
             <div className="flex gap-4">
-              <div className="h-14 w-14 rounded-xl bg-background/10 flex items-center justify-center">
-                <Shield className="h-7 w-7 text-primary" />
+              <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-white/10 bg-white/5">
+                <Shield className="h-7 w-7 text-[#d9b58e]" aria-hidden />
               </div>
-              <div className="h-14 w-14 rounded-xl bg-background/10 flex items-center justify-center">
-                <Award className="h-7 w-7 text-primary" />
+              <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-white/10 bg-white/5">
+                <Award className="h-7 w-7 text-[#d9b58e]" aria-hidden />
               </div>
             </div>
-            <p className="text-sm text-background/50 mt-3">{texts.certificatesNote}</p>
+            <p className="mt-3 text-sm text-white/50">{texts.certificatesNote}</p>
           </div>
         </div>
 
-        <div className="border-t border-background/10 mt-10 pt-8 flex flex-col items-center gap-4 text-sm text-background/50">
+        <div className="mt-10 border-t border-white/10 pt-8 text-center text-sm text-white/50">
           {texts.warningText && (
-            <p className="text-center max-w-2xl text-background/60 font-medium italic">
-              {texts.warningText}
-            </p>
+            <p className="mx-auto mb-4 max-w-2xl italic text-white/60">{texts.warningText}</p>
           )}
-          <div className="flex flex-col items-center gap-2">
+          <div className="mb-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+            {texts.faqLinkLabel && (
+              <Link
+                href="/faq"
+                className="cursor-pointer text-white/70 hover:text-primary hover:underline"
+              >
+                {texts.faqLinkLabel}
+              </Link>
+            )}
             {texts.privacyLinkLabel && (
               <Link
                 href="/privacy"
-                className="text-background/70 hover:text-primary transition-colors underline-offset-4 hover:underline"
+                className="cursor-pointer text-white/70 hover:text-primary hover:underline"
               >
                 {texts.privacyLinkLabel}
               </Link>
             )}
-            <p>{texts.copyright}</p>
           </div>
+          <p>{texts.copyright}</p>
         </div>
       </div>
     </footer>
