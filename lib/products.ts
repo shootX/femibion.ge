@@ -42,7 +42,7 @@ function normalizeProduct(raw: Partial<Product> & { price?: number | string }): 
   const subtitle = String(raw.subtitle ?? '').trim()
   const priceRaw = raw.price
   const price =
-    priceRaw != null && priceRaw !== '' && !Number.isNaN(Number(priceRaw))
+    priceRaw != null && (priceRaw as unknown) !== '' && !Number.isNaN(Number(priceRaw))
       ? Number(priceRaw)
       : undefined
 

@@ -14,6 +14,7 @@ import {
   Settings,
   LayoutTemplate,
   Package,
+  Receipt,
 } from 'lucide-react'
 
 import {
@@ -40,6 +41,11 @@ const navItems = [
     title: 'შეკვეთები',
     href: '/adminpc/orders',
     icon: ShoppingBag,
+  },
+  {
+    title: 'ინვოისები',
+    href: '/adminpc/invoices',
+    icon: Receipt,
   },
   {
     title: 'პროდუქცია',

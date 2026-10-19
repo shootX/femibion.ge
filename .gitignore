@@ -13,6 +13,10 @@ node_modules/
 # შეკვეთებში პერსონალური მონაცემები — არ აიტვირთოს Git-ში
 data/orders.json
 data/sms-reports.jsonl
+data/invoices.json
+data/admin-login-attempts.json
+
+tsconfig.tsbuildinfo
 
 # არქივები სერვერიდან არ უნდა აიტვირთოს
 *.zip

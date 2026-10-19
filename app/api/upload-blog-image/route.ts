@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { cookies } from 'next/headers'
+import { toCoverWebp } from '@/lib/blog-image'
 
 export async function POST(req: NextRequest) {
   const cookieStore = await cookies()
@@ -24,14 +25,13 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const safeExt = ext === 'jpeg' ? 'jpg' : ext
-    const name = `blog-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${safeExt}`
+    const name = `blog-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.webp`
     const base = process.cwd()
     const dir = join(base, 'public', 'images', 'blog')
     await mkdir(dir, { recursive: true })
     const destPath = join(dir, name)
-    const bytes = await file.arrayBuffer()
-    await writeFile(destPath, Buffer.from(bytes))
+    const bytes = Buffer.from(await file.arrayBuffer())
+    await writeFile(destPath, await toCoverWebp(bytes))
     return NextResponse.json({ path: `/images/blog/${name}` })
   } catch (e) {
     console.error(e)

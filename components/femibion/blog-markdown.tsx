@@ -11,13 +11,13 @@ function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
       const isInternal = href.startsWith('/') || href.startsWith('#') || href.includes('femibion.ge')
       if (isInternal) {
         return (
-          <Link key={key} href={href} className="cursor-pointer text-primary hover:underline">
+          <Link key={key} href={href} className="cursor-pointer text-primary underline">
             {label}
           </Link>
         )
       }
       return (
-        <a key={key} href={href} target="_blank" rel="noopener noreferrer" className="cursor-pointer text-primary hover:underline">
+        <a key={key} href={href} target="_blank" rel="noopener noreferrer" className="cursor-pointer text-primary underline">
           {label}
         </a>
       )

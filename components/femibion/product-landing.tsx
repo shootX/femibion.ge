@@ -8,6 +8,8 @@ import { getImagePaths } from '@/lib/images-server'
 import { Header } from '@/components/femibion/header'
 import { Footer } from '@/components/femibion/footer'
 import { getProductByPageSlug, productJsonLd, type ProductPageSlug } from '@/lib/product-pages'
+import { pageTitle } from '@/lib/seo'
+import { MetaViewContent } from '@/components/femibion/meta-view-content'
 
 const ICONS = [Leaf, Heart, Baby, Droplets] as const
 const BASE_URL = 'https://femibion.ge'
@@ -19,11 +21,12 @@ export async function productPageMetadata(slug: ProductPageSlug): Promise<Metada
   }
 
   const canonical = `${BASE_URL}/${slug}`
-  const title = `${product.name} — ${product.subtitle}`
+  const titled = pageTitle(`${product.name} — ${product.subtitle}`)
+  const title = titled.absolute
   const image = product.image.startsWith('http') ? product.image : `${BASE_URL}${product.image}`
 
   return {
-    title,
+    title: titled,
     description: product.description,
     alternates: {
       canonical,
@@ -38,6 +41,12 @@ export async function productPageMetadata(slug: ProductPageSlug): Promise<Metada
       locale: 'ka_GE',
       siteName: 'Femibion Georgia',
       images: [{ url: image, alt: `${product.name} — ${product.subtitle}` }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description: product.description,
+      images: [image],
     },
   }
 }
@@ -66,6 +75,7 @@ export async function ProductLanding({ slug }: { slug: ProductPageSlug }) {
     <div className="min-h-screen bg-background">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd(product, slug)) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
+      <MetaViewContent id={slug} value={product.price ?? (slug === 'femibion-1' ? 100 : 140)} />
       <Header texts={texts.header} images={images} />
       <main className="section-pad !pt-10">
         <div className="wrap">
@@ -88,8 +98,8 @@ export async function ProductLanding({ slug }: { slug: ProductPageSlug }) {
             </div>
 
             <div>
-              <p className="eyebrow mb-3">{product.subtitle}</p>
               <h1 className="text-3xl font-semibold tracking-[-0.02em] text-foreground sm:text-4xl">{product.name}</h1>
+              <h2 className="eyebrow mt-3">{product.subtitle}</h2>
               {product.price != null && (
                 <p className="mt-4 text-2xl font-semibold text-primary">{product.price} ₾</p>
               )}

@@ -1,5 +1,6 @@
 import { getActiveProducts } from '@/lib/products'
 import { pageSlugForProduct, productJsonLd } from '@/lib/product-pages'
+import { LEGAL_ENTITY } from '@/lib/legal'
 
 export async function StructuredData() {
   const products = await getActiveProducts()
@@ -13,20 +14,24 @@ export async function StructuredData() {
     '@type': 'Organization',
     '@id': 'https://femibion.ge/#organization',
     name: 'Femibion Georgia',
+    legalName: LEGAL_ENTITY.legalName,
+    taxID: LEGAL_ENTITY.taxId,
     alternateName: ['ფემიბიონი საქართველო', 'Femibion საქართველო'],
     url: 'https://femibion.ge',
     logo: {
       '@type': 'ImageObject',
       url: 'https://femibion.ge/images/logo.webp',
-      width: 600,
-      height: 60,
+      width: 591,
+      height: 591,
     },
     image: 'https://femibion.ge/images/hero-pregnant-woman.webp',
     description: '#1 პრენატალური ვიტამინი ევროპაში. ორსულობის და ლაქტაციის ვიტამინები საქართველოში.',
     address: {
       '@type': 'PostalAddress',
+      streetAddress: LEGAL_ENTITY.address,
       addressLocality: 'თბილისი',
       addressRegion: 'თბილისი',
+      postalCode: '01101',
       addressCountry: 'GE',
     },
     contactPoint: {
@@ -38,7 +43,7 @@ export async function StructuredData() {
       availableLanguage: ['Georgian', 'English'],
     },
     sameAs: [
-      'https://www.facebook.com/femibiongeorgia',
+      LEGAL_ENTITY.facebook,
       'https://www.instagram.com/femibiongeorgia',
     ],
   }
@@ -57,7 +62,9 @@ export async function StructuredData() {
     paymentAccepted: 'Cash, Credit Card',
     address: {
       '@type': 'PostalAddress',
+      streetAddress: LEGAL_ENTITY.address,
       addressLocality: 'თბილისი',
+      postalCode: '01101',
       addressCountry: 'GE',
     },
     areaServed: { '@type': 'Country', name: 'Georgia' },

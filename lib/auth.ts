@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers'
 
 const ADMIN_COOKIE = 'admin_session'
-const COOKIE_MAX_AGE = 60 * 60 * 24 // 24 საათი
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 30
 
 export async function isAdmin(): Promise<boolean> {
   const cookieStore = await cookies()

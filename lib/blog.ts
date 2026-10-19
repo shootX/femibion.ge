@@ -117,31 +117,63 @@ export function articleImageAlt(post: BlogPost): string {
   return post.imageAlt?.trim() || post.title
 }
 
+const TOPIC_RULES = [
+  { id: 'folate', pattern: /metafolin|მეტაფოლინ|ფოლატ|ფოლიუმ|mthfr|მეთილფოლატ|5-mthf/i },
+  { id: 'dha', pattern: /dha|omega-3|ომეგა/i },
+  { id: 'femibion12', pattern: /femibion\s*1|femibion\s*2|ფემიბიონი?\s*1|ფემიბიონი?\s*2/i },
+] as const
+
+const TOPIC_CLUSTER = ['folate', 'dha', 'femibion12'] as const
+
+function topicWeights(post: BlogPost): Map<string, number> {
+  const weights = new Map<string, number>()
+  const fields: Array<[string, number]> = [
+    [post.title, 4],
+    [post.slug.replace(/-/g, ' '), 3],
+    [post.excerpt, 1],
+  ]
+  for (const [text, weight] of fields) {
+    for (const rule of TOPIC_RULES) {
+      if (rule.pattern.test(text)) {
+        weights.set(rule.id, (weights.get(rule.id) ?? 0) + weight)
+      }
+    }
+  }
+  return weights
+}
+
 export function relatedPosts(posts: BlogPost[], slug: string, limit = 3): BlogPost[] {
   const current = posts.find((post) => post.slug === slug)
-  if (!current) return posts.filter((post) => post.slug !== slug).slice(0, limit)
+  if (!current) return []
 
-  const words = new Set(
-    current.title
-      .toLowerCase()
-      .split(/\s+/)
-      .map((word) => word.replace(/[^\p{L}\p{N}]/gu, ''))
-      .filter((word) => word.length > 3)
-  )
+  const currentWeights = topicWeights(current)
+  if (currentWeights.size === 0) return []
 
-  return posts
-    .filter((post) => post.slug !== slug)
-    .map((post) => {
-      const score = post.title
-        .toLowerCase()
-        .split(/\s+/)
-        .map((word) => word.replace(/[^\p{L}\p{N}]/gu, ''))
-        .filter((word) => words.has(word)).length
-      return { post, score }
-    })
-    .sort((a, b) => b.score - a.score || b.post.date.localeCompare(a.post.date))
-    .slice(0, limit)
-    .map((item) => item.post)
+  const inCluster = TOPIC_CLUSTER.some((topic) => currentWeights.has(topic))
+  const wanted = inCluster
+    ? [...TOPIC_CLUSTER].sort(
+        (a, b) =>
+          (currentWeights.get(b) ?? 0) - (currentWeights.get(a) ?? 0) ||
+          TOPIC_CLUSTER.indexOf(a) - TOPIC_CLUSTER.indexOf(b)
+      )
+    : [...currentWeights.keys()]
+
+  const used = new Set<string>([current.slug])
+  const picked: BlogPost[] = []
+
+  for (const topic of wanted) {
+    if (picked.length >= limit) break
+    const best = posts
+      .filter((post) => !used.has(post.slug))
+      .map((post) => ({ post, weight: topicWeights(post).get(topic) ?? 0 }))
+      .filter((item) => item.weight > 0)
+      .sort((a, b) => b.weight - a.weight || b.post.date.localeCompare(a.post.date))[0]
+    if (!best) continue
+    used.add(best.post.slug)
+    picked.push(best.post)
+  }
+
+  return picked
 }
 
 export function truncateExcerpt(text: string, maxChars: number = 200): string {

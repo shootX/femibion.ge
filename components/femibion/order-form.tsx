@@ -1,9 +1,10 @@
 'use client'
 
 import { useMemo, useRef, useState } from 'react'
+import Link from 'next/link'
 import { User, Phone, MapPin, Package, CheckCircle, Loader2, Truck, Building2 } from 'lucide-react'
 import { submitOrder } from '@/app/actions/orders'
-import { trackEvent } from '@/lib/analytics'
+import { trackEvent, trackMeta } from '@/lib/analytics'
 import { getDeliveryFee, searchCities } from '@/lib/georgia-cities'
 import {
   AlertDialog,
@@ -68,6 +69,7 @@ export function OrderForm({
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const productLines = products.map((p, idx) => ({
@@ -89,13 +91,13 @@ export function OrderForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!hasProducts || !city.trim() || !street.trim() || isLoading) return
+    if (!hasProducts || !city.trim() || !street.trim() || !acceptedTerms || isLoading) return
     setError(null)
     setConfirmOpen(true)
   }
 
   const placeOrder = async () => {
-    if (!hasProducts || !city.trim() || !street.trim() || isLoading) return
+    if (!hasProducts || !city.trim() || !street.trim() || !acceptedTerms || isLoading) return
     setConfirmOpen(false)
     setIsLoading(true)
     setError(null)
@@ -121,6 +123,7 @@ export function OrderForm({
       productsTotal: productsSum,
       total: productsSum + fee,
       items,
+      acceptedTerms,
     })
 
     setIsLoading(false)
@@ -133,6 +136,16 @@ export function OrderForm({
         currency: 'GEL',
         value: productsSum + fee,
       })
+      trackMeta(
+        'Lead',
+        {
+          value: productsSum + fee,
+          currency: 'GEL',
+          content_name: 'order_form',
+          num_items: totalItems,
+        },
+        result.orderId
+      )
       setIsSubmitted(true)
     } else {
       setError(result.error || 'შეცდომა')
@@ -143,6 +156,7 @@ export function OrderForm({
     if (hasTrackedFormStart.current) return
     hasTrackedFormStart.current = true
     trackEvent('form_start', { form_name: 'order_form' })
+    trackMeta('InitiateCheckout')
   }
 
   const selectCity = (value: string) => {
@@ -171,6 +185,7 @@ export function OrderForm({
                   setCityQuery('')
                   setStreet('')
                   setQuantities({})
+                  setAcceptedTerms(false)
                 }}
                 className="btn-primary cursor-pointer"
               >
@@ -357,7 +372,11 @@ export function OrderForm({
                           </span>
                         )}
                       </span>
+                      <label htmlFor={`qty-${product.key}`} className="sr-only">
+                        {product.label} — რაოდენობა
+                      </label>
                       <input
+                        id={`qty-${product.key}`}
                         type="number"
                         min={0}
                         max={999}
@@ -408,7 +427,7 @@ export function OrderForm({
 
             <button
               type="submit"
-              disabled={!hasProducts || !city || !street.trim() || isLoading || productLines.length === 0}
+              disabled={!hasProducts || !city || !street.trim() || !acceptedTerms || isLoading || productLines.length === 0}
               className="btn-primary w-full cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isLoading ? (
@@ -423,7 +442,26 @@ export function OrderForm({
               )}
             </button>
 
-            <p className="text-center text-xs text-muted-foreground">{texts.termsNote}</p>
+            <label className="flex items-start gap-3 text-sm text-muted-foreground">
+              <input
+                type="checkbox"
+                name="acceptedTerms"
+                required
+                checked={acceptedTerms}
+                onChange={(e) => setAcceptedTerms(e.target.checked)}
+                className="mt-1 h-4 w-4 shrink-0 cursor-pointer accent-primary"
+              />
+              <span>
+                ვეთანხმები{' '}
+                <Link href="/terms" className="cursor-pointer text-primary underline">
+                  წესებს
+                </Link>{' '}
+                და{' '}
+                <Link href="/privacy" className="cursor-pointer text-primary underline">
+                  კონფიდენციალურობის პოლიტიკას
+                </Link>
+              </span>
+            </label>
           </div>
         </form>
 

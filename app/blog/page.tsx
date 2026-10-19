@@ -6,24 +6,35 @@ import { getBlogPosts } from '@/lib/blog'
 import { Header } from '@/components/femibion/header'
 import { Footer } from '@/components/femibion/footer'
 import { BlogPostCard } from '@/components/femibion/blog-post-card'
+import { SiteBreadcrumbs } from '@/components/femibion/site-breadcrumbs'
+import { pageTitle } from '@/lib/seo'
 
 export const revalidate = 3600
 
+const BLOG_TITLE = pageTitle('ბლოგი')
+const BLOG_DESCRIPTION = 'Femibion — სტატიები ორსულობის, ვიტამინებისა და დედის ჯანმრთელობის შესახებ.'
+
 export const metadata: Metadata = {
-  title: 'ბლოგი',
-  description: 'Femibion - სასარგებლო სტატიები ორსულობის, ვიტამინებისა და დედის ჯანმრთელობის შესახებ.',
+  title: BLOG_TITLE,
+  description: BLOG_DESCRIPTION,
   alternates: {
     canonical: 'https://femibion.ge/blog',
     languages: { ka: 'https://femibion.ge/blog', 'x-default': 'https://femibion.ge/blog' },
   },
   openGraph: {
-    title: 'ბლოგი | Femibion Georgia',
-    description: 'Femibion - სასარგებლო სტატიები ორსულობის, ვიტამინებისა და დედის ჯანმრთელობის შესახებ.',
+    title: BLOG_TITLE.absolute,
+    description: BLOG_DESCRIPTION,
     url: 'https://femibion.ge/blog',
     type: 'website',
     locale: 'ka_GE',
     siteName: 'Femibion Georgia',
     images: [{ url: '/images/og-image.jpg', width: 1200, height: 630, type: 'image/jpeg', alt: 'Femibion Georgia ბლოგი' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: BLOG_TITLE.absolute,
+    description: BLOG_DESCRIPTION,
+    images: ['/images/og-image.jpg'],
   },
 }
 
@@ -69,6 +80,12 @@ export default async function BlogPage() {
       <Header texts={texts.header} images={images} />
       <main className="section-pad">
         <div className="wrap">
+          <SiteBreadcrumbs
+            items={[
+              { href: '/', label: 'მთავარი' },
+              { label: 'ბლოგი' },
+            ]}
+          />
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{blogTexts.title}</h1>
           {blogTexts.subtitle && (
             <p className="mt-2 text-muted-foreground">{blogTexts.subtitle}</p>

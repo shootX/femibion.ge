@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { isAdmin } from '@/lib/auth'
+import { createCaptcha } from '@/lib/login-guard'
 import { LoginForm } from './login-form'
 import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
@@ -24,7 +25,14 @@ export default async function AdminLoginPage() {
       </div>
       
       <div className="rounded-2xl border bg-card p-6 shadow-xl shadow-foreground/5 sm:p-8">
-        <LoginForm />
+        <LoginForm
+          initialCaptcha={createCaptcha()}
+          turnstileSiteKey={
+            process.env.TURNSTILE_SECRET_KEY && process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
+              ? process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
+              : undefined
+          }
+        />
       </div>
       
       <p className="mt-8 text-center text-xs text-muted-foreground">

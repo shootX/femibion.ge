@@ -11,6 +11,7 @@ import {
   X,
   Eye,
   CheckSquare,
+  Receipt,
 } from 'lucide-react'
 import { bulkDeleteOrders, bulkSetOrderStatus } from './actions'
 import { Button } from '@/components/ui/button'
@@ -524,12 +525,20 @@ export function OrdersPanel({ orders }: { orders: Order[] }) {
                           />
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button asChild variant="ghost" size="sm">
-                            <Link href={`/adminpc/orders/${order.id}`}>
-                              <Eye className="mr-1 h-4 w-4" />
-                              დეტალები
-                            </Link>
-                          </Button>
+                          <div className="flex items-center justify-end gap-1">
+                            <Button asChild variant="ghost" size="sm" title="ინვოისის შექმნა">
+                              <Link href={`/adminpc/invoices/new?orderId=${order.id}`}>
+                                <Receipt className="mr-1 h-3.5 w-3.5 text-primary" />
+                                ინვოისი
+                              </Link>
+                            </Button>
+                            <Button asChild variant="ghost" size="sm">
+                              <Link href={`/adminpc/orders/${order.id}`}>
+                                <Eye className="mr-1 h-4 w-4" />
+                                დეტალები
+                              </Link>
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -592,7 +601,12 @@ export function OrdersPanel({ orders }: { orders: Order[] }) {
                         status={order.status}
                         onUpdated={() => router.refresh()}
                       />
-                      <Button asChild variant="outline" size="sm" className="ml-auto">
+                      <Button asChild variant="ghost" size="sm" className="ml-auto" title="ინვოისის შექმნა">
+                        <Link href={`/adminpc/invoices/new?orderId=${order.id}`}>
+                          <Receipt className="h-4 w-4 text-primary" />
+                        </Link>
+                      </Button>
+                      <Button asChild variant="outline" size="sm">
                         <Link href={`/adminpc/orders/${order.id}`}>დეტალები</Link>
                       </Button>
                     </div>

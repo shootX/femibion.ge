@@ -18,6 +18,7 @@ export function BlogPostCard({ post, readMoreText }: { post: BlogPost; readMoreT
           src={post.image}
           alt={articleImageAlt(post)}
           fill
+          unoptimized
           className="object-cover transition-transform duration-300 group-hover:scale-105"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
         />

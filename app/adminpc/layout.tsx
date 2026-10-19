@@ -1,7 +1,13 @@
+import type { Metadata } from 'next'
 import { isAdmin } from '@/lib/auth'
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar'
 import { AdminSidebar } from '@/components/femibion/admin-sidebar'
 import { Separator } from '@/components/ui/separator'
+
+export const metadata: Metadata = {
+  title: { absolute: 'Admin' },
+  robots: { index: false, follow: false },
+}
 
 export default async function AdminLayout({
   children,

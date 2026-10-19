@@ -73,6 +73,8 @@ export type SiteTexts = {
     copyright: string
     faqLinkLabel?: string
     privacyLinkLabel: string
+    termsLinkLabel?: string
+    hours?: string
     warningText?: string
     cookies: {
       title: string
@@ -98,7 +100,7 @@ export type SiteTexts = {
 }
 
 const DEFAULT_TEXTS: SiteTexts = {
-  header: { brand: 'Femibion', logoLetter: 'F', navHome: 'მთავარი გვერდი', navProducts: 'პროდუქცია', navBlog: 'ბლოგი', navOrder: 'შეკვეთა' },
+  header: { brand: 'Femibion', logoLetter: 'F', navHome: 'მთავარი გვერდი', navProducts: 'პროდუქცია', navBlog: 'ბლოგი', navFaq: 'ხ.დ.კ.', navOrder: 'შეკვეთა' },
   hero: {
     badge: '#1 ევროპაში',
     title: 'ზრუნვა პირველი დღიდან',
@@ -190,6 +192,8 @@ const DEFAULT_TEXTS: SiteTexts = {
     copyright: '© 2026 Femibion Georgia. ყველა უფლება დაცულია.',
     faqLinkLabel: 'ხ.დ.კ.',
     privacyLinkLabel: 'კონფიდენციალურობის პოლიტიკა',
+    termsLinkLabel: 'წესები და პირობები',
+    hours: 'ორშაბათი–შაბათი, 10:00–19:00',
     warningText: 'საკვები დანამატი არ ანაცვლებს ბალანსირებულ კვებას. გამოყენებამდე გაიარეთ კონსულტაცია მკურნალ ექიმთან.',
     cookies: {
       title: 'ქუქი-ფაილების გამოყენება',

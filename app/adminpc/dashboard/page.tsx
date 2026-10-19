@@ -16,6 +16,7 @@ import {
   Clock,
   CheckCircle2,
   LayoutTemplate,
+  Receipt,
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -72,6 +73,12 @@ export default async function AdminDashboardPage() {
       href: '/adminpc/orders',
       icon: ShoppingBag,
       description: 'ნახე და შეცვალე შეკვეთების სტატუსი',
+    },
+    {
+      title: 'ინვოისები',
+      href: '/adminpc/invoices',
+      icon: Receipt,
+      description: 'ინვოისების გამოწერა და საწყობის მართვა',
     },
     {
       title: 'ბლოგის მართვა',

@@ -5,13 +5,15 @@ import { getFaqData } from '@/lib/faq'
 import { Header } from '@/components/femibion/header'
 import { Footer } from '@/components/femibion/footer'
 import { FaqAccordion } from '@/components/femibion/faq-accordion'
+import { SiteBreadcrumbs } from '@/components/femibion/site-breadcrumbs'
+import { pageTitle } from '@/lib/seo'
 
 export const revalidate = 86400
 
 export async function generateMetadata(): Promise<Metadata> {
   const faq = await getFaqData()
   return {
-    title: faq.title,
+    title: pageTitle(faq.title),
     description: faq.description,
     alternates: {
       canonical: 'https://femibion.ge/faq',
@@ -86,6 +88,12 @@ export default async function FaqPage() {
       <Header texts={texts.header} images={images} />
       <main className="section-pad">
         <div className="wrap">
+          <SiteBreadcrumbs
+            items={[
+              { href: '/', label: 'მთავარი' },
+              { label: faq.title },
+            ]}
+          />
           <div className="mb-12 text-center">
             <span className="eyebrow mb-4 justify-center">სასარგებლო ინფორმაცია</span>
             <h1 className="section-heading">{faq.title}</h1>

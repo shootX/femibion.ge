@@ -13,6 +13,7 @@ import {
   Phone,
   Trash2,
   User,
+  Receipt,
 } from 'lucide-react'
 import { deleteOrder, setOrderStatus } from './actions'
 import { formatPhoneDisplay, toUbillNumber } from '@/lib/phone'
@@ -158,6 +159,15 @@ export function OrderDetailView({ order }: { order: Order }) {
               ეს შეკვეთა ადმინისტრატორმა შექმნა ხელით საიტის ფორმის გარეშე.
             </p>
           )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button asChild variant="outline" size="sm" className="gap-1.5 shadow-sm">
+            <Link href={`/adminpc/invoices/new?orderId=${order.id}`}>
+              <Receipt className="h-4 w-4 text-primary" />
+              ინვოისის შექმნა
+            </Link>
+          </Button>
         </div>
       </div>
 

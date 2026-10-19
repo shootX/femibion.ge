@@ -4,6 +4,11 @@ import { getImagePaths } from '@/lib/images-server'
 import { getPrivacyPolicy } from '@/lib/privacy-policy'
 import { Header } from '@/components/femibion/header'
 import { Footer } from '@/components/femibion/footer'
+import { LegalEntityNotice } from '@/components/femibion/legal-entity-notice'
+import { pageTitle } from '@/lib/seo'
+
+const PRIVACY_DESCRIPTION =
+  'Femibion Georgia-ს კონფიდენციალურობის პოლიტიკა ვებსაიტზე: Google Analytics, ქუქი-ფაილები, მონაცემთა დამუშავების საფუძველი და შენახვის ვადა.'
 
 export const revalidate = 86400
 
@@ -23,8 +28,8 @@ function normalizePolicyContent(html: string): string {
 export async function generateMetadata(): Promise<Metadata> {
   const policy = await getPrivacyPolicy()
   return {
-    title: policy.title,
-    description: 'Femibion Georgia — პერსონალური მონაცემების დამუშავების პოლიტიკა.',
+    title: pageTitle(policy.title),
+    description: PRIVACY_DESCRIPTION,
     alternates: {
       canonical: 'https://femibion.ge/privacy',
       languages: {
@@ -37,8 +42,8 @@ export async function generateMetadata(): Promise<Metadata> {
       follow: true,
     },
     openGraph: {
-      title: `${policy.title} | Femibion Georgia`,
-      description: 'Femibion Georgia — პერსონალური მონაცემების დამუშავების პოლიტიკა.',
+      title: pageTitle(policy.title).absolute,
+      description: PRIVACY_DESCRIPTION,
       url: 'https://femibion.ge/privacy',
       type: 'website',
       locale: 'ka_GE',
@@ -55,8 +60,8 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${policy.title} | Femibion Georgia`,
-      description: 'Femibion Georgia — პერსონალური მონაცემების დამუშავების პოლიტიკა.',
+      title: pageTitle(policy.title).absolute,
+      description: PRIVACY_DESCRIPTION,
       images: ['/images/og-image.jpg'],
     },
   }
@@ -83,6 +88,7 @@ export default async function PrivacyPage() {
         <div className="container mx-auto px-4 md:px-6 max-w-3xl">
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl text-balance">{policy.title}</h1>
           <p className="mt-2 text-sm text-muted-foreground">ბოლო განახლება: {dateStr}</p>
+          <LegalEntityNotice />
           <div
             className="privacy-content mt-8 space-y-4 text-foreground leading-relaxed [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mt-8 [&_h2]:mb-3 [&_p]:text-muted-foreground [&_ul]:list-disc [&_ul]:pl-6 [&_li]:text-muted-foreground"
             dangerouslySetInnerHTML={{ __html: normalizePolicyContent(policy.contentHtml) }}

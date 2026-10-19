@@ -22,9 +22,14 @@ export type SubmitOrderInput = {
   productsTotal?: number
   total?: number
   items: OrderLineItem[]
+  acceptedTerms?: boolean
 }
 
-export async function submitOrder(input: SubmitOrderInput): Promise<{ success: boolean; error?: string }> {
+export async function submitOrder(input: SubmitOrderInput): Promise<{ success: boolean; error?: string; orderId?: string }> {
+  if (input.acceptedTerms !== true) {
+    return { success: false, error: 'საჭიროა წესებსა და კონფიდენციალურობის პოლიტიკაზე თანხმობა' }
+  }
+
   if (!input.name?.trim() || !input.phone?.trim() || !input.city?.trim() || !input.address?.trim()) {
     return { success: false, error: 'შეავსეთ ყველა ველი' }
   }
@@ -62,7 +67,7 @@ export async function submitOrder(input: SubmitOrderInput): Promise<{ success: b
       product2Label: items[1]?.label ?? '',
     })
     await Promise.all([sendOrderEmail(order), sendOrderSms(order)])
-    return { success: true }
+    return { success: true, orderId: order.id }
   } catch (e) {
     console.error('Order submit error:', e)
     return { success: false, error: 'შეკვეთა ვერ შენახეს' }

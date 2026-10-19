@@ -2,9 +2,8 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { Facebook, Instagram, MapPin, Phone, Mail, Shield, Award } from 'lucide-react'
-import { trackEvent } from '@/lib/analytics'
-
+import { Facebook, Instagram, MapPin, Phone, Mail, Shield, Award, Clock } from 'lucide-react'
+import { FOOTER_LEGAL_LINE, LEGAL_ENTITY } from '@/lib/legal'
 type FooterTexts = {
   brand: string
   logoLetter: string
@@ -19,6 +18,8 @@ type FooterTexts = {
   copyright: string
   faqLinkLabel?: string
   privacyLinkLabel?: string
+  termsLinkLabel?: string
+  hours?: string
   warningText?: string
 }
 type FooterImages = { logo: string; hasLogo: boolean }
@@ -56,17 +57,22 @@ export function Footer({ texts, images }: { texts: FooterTexts; images?: FooterI
           </div>
 
           <div>
-            <h3 className="mb-5 text-sm font-semibold uppercase tracking-[0.12em] text-white/90">{texts.contactTitle}</h3>
+            <p className="mb-5 text-sm font-semibold uppercase tracking-[0.12em] text-white/90">{texts.contactTitle}</p>
             <ul className="space-y-3 text-sm text-white/70">
               <li className="flex items-start gap-3">
                 <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[#d9b58e]" aria-hidden />
                 {texts.address}
               </li>
+              {texts.hours && (
+                <li className="flex items-start gap-3">
+                  <Clock className="mt-0.5 h-5 w-5 shrink-0 text-[#d9b58e]" aria-hidden />
+                  {texts.hours}
+                </li>
+              )}
               <li className="flex items-center gap-3">
                 <Phone className="h-5 w-5 shrink-0 text-[#d9b58e]" aria-hidden />
                 <a
                   href={phoneHref}
-                  onClick={() => trackEvent('call_click', { location: 'footer', phone: texts.phone })}
                   className="cursor-pointer transition-colors hover:text-white"
                 >
                   {texts.phone}
@@ -82,10 +88,10 @@ export function Footer({ texts, images }: { texts: FooterTexts; images?: FooterI
           </div>
 
           <div>
-            <h3 className="mb-5 text-sm font-semibold uppercase tracking-[0.12em] text-white/90">{texts.socialTitle}</h3>
+            <p className="mb-5 text-sm font-semibold uppercase tracking-[0.12em] text-white/90">{texts.socialTitle}</p>
             <div className="flex gap-3">
               <a
-                href="https://www.facebook.com/femibiongeorgia"
+                href={LEGAL_ENTITY.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/5 transition-colors hover:bg-white/15"
@@ -106,7 +112,7 @@ export function Footer({ texts, images }: { texts: FooterTexts; images?: FooterI
           </div>
 
           <div>
-            <h3 className="mb-5 text-sm font-semibold uppercase tracking-[0.12em] text-white/90">{texts.certificatesTitle}</h3>
+            <p className="mb-5 text-sm font-semibold uppercase tracking-[0.12em] text-white/90">{texts.certificatesTitle}</p>
             <div className="flex gap-4">
               <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-white/10 bg-white/5">
                 <Shield className="h-7 w-7 text-[#d9b58e]" aria-hidden />
@@ -132,6 +138,14 @@ export function Footer({ texts, images }: { texts: FooterTexts; images?: FooterI
                 {texts.faqLinkLabel}
               </Link>
             )}
+            {texts.termsLinkLabel && (
+              <Link
+                href="/terms"
+                className="cursor-pointer text-white/70 hover:text-primary hover:underline"
+              >
+                {texts.termsLinkLabel}
+              </Link>
+            )}
             {texts.privacyLinkLabel && (
               <Link
                 href="/privacy"
@@ -142,6 +156,7 @@ export function Footer({ texts, images }: { texts: FooterTexts; images?: FooterI
             )}
           </div>
           <p>{texts.copyright}</p>
+          <p className="mx-auto mt-3 max-w-3xl text-xs leading-6 text-white/70">{FOOTER_LEGAL_LINE}</p>
         </div>
       </div>
     </footer>

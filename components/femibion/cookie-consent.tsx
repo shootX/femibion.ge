@@ -1,8 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Cookie } from 'lucide-react'
+import { setMetaConsent } from '@/lib/analytics'
 
 type CookieConsentProps = {
   texts: {
@@ -27,17 +29,29 @@ export function CookieConsent({ texts }: CookieConsentProps) {
   const handleAccept = () => {
     localStorage.setItem('cookie-consent', 'accepted')
     setIsVisible(false)
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      ;(window as any).gtag('consent', 'update', { analytics_storage: 'granted' })
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('consent', 'update', {
+        analytics_storage: 'granted',
+        ad_storage: 'granted',
+        ad_user_data: 'granted',
+        ad_personalization: 'granted',
+      })
     }
+    setMetaConsent(true)
   }
 
   const handleDecline = () => {
     localStorage.setItem('cookie-consent', 'declined')
     setIsVisible(false)
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      ;(window as any).gtag('consent', 'update', { analytics_storage: 'denied' })
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('consent', 'update', {
+        analytics_storage: 'denied',
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+      })
     }
+    setMetaConsent(false)
   }
 
   if (!isVisible) return null
@@ -52,7 +66,12 @@ export function CookieConsent({ texts }: CookieConsentProps) {
           <div className="space-y-4">
             <div>
               <h3 className="font-bold">{texts.title}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{texts.description}</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {texts.description}{' '}
+                <Link href="/privacy" className="cursor-pointer underline">
+                  კონფიდენციალურობის პოლიტიკა
+                </Link>
+              </p>
             </div>
             <div className="flex flex-col gap-2 sm:flex-row">
               <Button onClick={handleAccept} className="flex-1 cursor-pointer rounded-full">

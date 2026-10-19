@@ -10,6 +10,9 @@ import { Header } from '@/components/femibion/header'
 import { Footer } from '@/components/femibion/footer'
 import { ShareButtons } from '@/components/femibion/share-buttons'
 import { BlogMarkdown, BlogToc } from '@/components/femibion/blog-markdown'
+import { SiteBreadcrumbs } from '@/components/femibion/site-breadcrumbs'
+import { pageTitle } from '@/lib/seo'
+import { BLOG_COVER_HEIGHT, BLOG_COVER_WIDTH } from '@/lib/blog-image'
 
 export const revalidate = 3600
 
@@ -28,12 +31,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const canonicalUrl = `${BASE_URL}/blog/${post.slug}`
   const imageUrl = post.image.startsWith('http') ? post.image : `${BASE_URL}${post.image}`
-  const title = articleTitle(post)
+  const titled = pageTitle(articleTitle(post))
+  const title = titled.absolute
   const description = articleDescription(post)
   const imageAlt = articleImageAlt(post)
 
   return {
-    title,
+    title: titled,
     description,
     robots: {
       index: true,
@@ -64,7 +68,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       authors: ['Femibion Georgia'],
       section: 'ორსულობა და ვიტამინები',
       tags: ['Femibion', 'ფემიბიონი', 'ორსულობის ვიტამინები', 'პრენატალური ვიტამინები'],
-      images: [{ url: imageUrl, alt: imageAlt, width: 1200, height: 630 }],
+      images: [{ url: imageUrl, alt: imageAlt, width: BLOG_COVER_WIDTH, height: BLOG_COVER_HEIGHT }],
     },
     twitter: {
       card: 'summary_large_image',
@@ -154,19 +158,22 @@ export default async function BlogPostPage({ params }: Props) {
       <Header texts={texts.header} images={images} />
       <main>
         <article className="wrap section-pad !pt-8">
-          <Link
-            href="/blog"
-            className="mb-6 inline-block cursor-pointer text-sm text-muted-foreground hover:text-primary"
-          >
-            ← ბლოგი
-          </Link>
+          <SiteBreadcrumbs
+            items={[
+              { href: '/', label: 'მთავარი' },
+              { href: '/blog', label: 'ბლოგი' },
+              { label: post.title },
+            ]}
+          />
           <div className="relative mb-8 aspect-video overflow-hidden rounded-2xl bg-muted shadow-[var(--shadow-card)]">
             <Image
               src={post.image}
               alt={imageAlt}
               fill
+              unoptimized
               className="object-cover"
               priority
+              fetchPriority="high"
               sizes="(max-width: 768px) 100vw, 768px"
             />
           </div>
@@ -181,7 +188,7 @@ export default async function BlogPostPage({ params }: Props) {
           </div>
 
           <BlogToc content={post.content} />
-          <div className="prose prose-neutral max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-p:leading-relaxed prose-strong:text-foreground prose-a:text-cta hover:prose-a:underline">
+          <div className="prose prose-neutral max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-p:leading-relaxed prose-strong:text-foreground prose-a:text-cta prose-a:underline">
             <BlogMarkdown content={post.content} />
           </div>
 

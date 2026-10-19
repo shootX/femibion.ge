@@ -4,8 +4,11 @@ import localFont from 'next/font/local'
 import './globals.css'
 import { getSiteTexts } from '@/lib/texts'
 import { CookieConsent } from '@/components/femibion/cookie-consent'
+import { TelClickTracker } from '@/components/femibion/tel-click-tracker'
+import { MetaPageViews } from '@/components/femibion/meta-page-views'
 
 const GA_ID = 'G-ZHB1WKDT66'
+const META_PIXEL_ID = '1660192815715456'
 
 const firaGo = localFont({
   src: '../FiraGO-Medium.woff2',
@@ -16,11 +19,11 @@ const firaGo = localFont({
 export const metadata: Metadata = {
   metadataBase: new URL('https://femibion.ge'),
   title: {
-    default: 'Femibion საქართველო | ორსულობის ვიტამინები - პრენატალური ვიტამინები',
+    default: 'Femibion საქართველო | ორსულობისა და ლაქტაციის ვიტამინები ონლაინ',
     template: '%s | Femibion Georgia',
   },
   description:
-    'Femibion - #1 პრენატალური ვიტამინი ევროპაში. ორსულობის დაგეგმვის, ორსულობის და ლაქტაციის ვიტამინები. ოპტიმალური ფორმა მათთვის, ვისაც სურს ფოლატების მაქსიმალური ათვისება. შეუკვეთე ონლაინ საქართველოში.',
+    'Femibion — #1 პრენატალური ვიტამინი ევროპაში. ორსულობის დაგეგმვის, ორსულობისა და ლაქტაციის ვიტამინები. შეუკვეთე ონლაინ საქართველოში.',
   keywords: [
     'femibion',
     'ფემიბიონი',
@@ -51,7 +54,7 @@ export const metadata: Metadata = {
     siteName: 'Femibion Georgia',
     title: 'Femibion საქართველო | #1 პრენატალური ვიტამინი ევროპაში',
     description:
-      'Femibion - პრემიუმ ვიტამინები ორსულობის დაგეგმვის, ორსულობის და ლაქტაციის პერიოდისთვის. ოპტიმალური ფორმა მათთვის, ვისაც სურს ფოლატების მაქსიმალური ათვისება. შეუკვეთე ონლაინ.',
+      'Femibion — #1 პრენატალური ვიტამინი ევროპაში. ორსულობის დაგეგმვის, ორსულობისა და ლაქტაციის ვიტამინები. შეუკვეთე ონლაინ საქართველოში.',
     images: [
       {
         url: '/images/og-image.jpg',
@@ -66,7 +69,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Femibion საქართველო | ორსულობის ვიტამინები',
     description:
-      'Femibion - #1 პრენატალური ვიტამინი ევროპაში. ორსულობის და ლაქტაციის ვიტამინები. ოპტიმალური ფორმა მათთვის, ვისაც სურს ფოლატების მაქსიმალური ათვისება.',
+      'Femibion — #1 პრენატალური ვიტამინი ევროპაში. ორსულობის დაგეგმვის, ორსულობისა და ლაქტაციის ვიტამინები. შეუკვეთე ონლაინ საქართველოში.',
     images: ['/images/og-image.jpg'],
   },
   formatDetection: {
@@ -88,35 +91,63 @@ export default async function RootLayout({
   return (
     <html lang="ka-GE" dir="ltr">
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+            window.dataLayer = window.dataLayer || [];
+            window.gtag = function(){dataLayer.push(arguments);};
+            var granted = 'denied';
+            try {
+              if (localStorage.getItem('cookie-consent') === 'accepted') granted = 'granted';
+            } catch (e) {}
+            window.gtag('consent', 'default', {
+              analytics_storage: granted,
+              ad_storage: granted,
+              ad_user_data: granted,
+              ad_personalization: granted,
+              wait_for_update: 500
+            });
+          `,
+          }}
+        />
         <link rel="icon" href="/favicon.ico?v=4" sizes="any" />
         <link rel="icon" href="/icon.png?v=4" type="image/png" sizes="32x32" />
         <link rel="icon" href="/icon-192.png?v=4" type="image/png" sizes="192x192" />
         <link rel="apple-touch-icon" href="/apple-icon.png" />
         <link rel="manifest" href="/manifest.json" />
-        <link rel="preload" as="image" href="/images/hero-pregnant-woman.webp" type="image/webp" fetchPriority="high" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
         <meta name="theme-color" content="#a84f55" />
+        <meta name="facebook-domain-verification" content="ovm2g3g0i6qfaae5nvvsyobxphvlxd" />
       </head>
       <body className={`${firaGo.variable} font-sans antialiased`}>
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-          strategy="lazyOnload"
+          strategy="afterInteractive"
         />
-        <Script id="gtag" strategy="lazyOnload">
+        <Script id="gtag" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            if (typeof localStorage !== 'undefined' && localStorage.getItem('cookie-consent') === 'accepted') {
-              gtag('consent', 'default', { 'analytics_storage': 'granted' });
-            } else {
-              gtag('consent', 'default', { 'analytics_storage': 'denied' });
-            }
-            gtag('config', '${GA_ID}');
+            window.gtag = window.gtag || function(){dataLayer.push(arguments);};
+            window.gtag('js', new Date());
+            window.gtag('config', '${GA_ID}');
+          `}
+        </Script>
+        <Script id="meta-pixel" strategy="afterInteractive">
+          {`
+            !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+            n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+            document,'script','https://connect.facebook.net/en_US/fbevents.js');
+            fbq('consent', localStorage.getItem('cookie-consent')==='accepted' ? 'grant' : 'revoke');
+            fbq('init', '${META_PIXEL_ID}');
+            fbq('track', 'PageView');
           `}
         </Script>
         {children}
+        <MetaPageViews />
+        <TelClickTracker />
         <CookieConsent texts={texts.footer.cookies} />
       </body>
     </html>
