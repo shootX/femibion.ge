@@ -30,7 +30,6 @@ export function BlogPostCard({
           src={post.image}
           alt={articleImageAlt(post)}
           fill
-          unoptimized
           className="object-cover transition-transform duration-500 [transition-timing-function:var(--ease-out)] group-hover:scale-[1.03]"
           sizes={featured ? '(max-width: 768px) 100vw, 640px' : '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 380px'}
         />
