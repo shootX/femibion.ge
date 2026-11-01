@@ -46,14 +46,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       fileMtime('data/products.json'),
     ])
 
-    const blogPages: MetadataRoute.Sitemap = posts
-      .filter((post) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(post.slug))
-      .map((post) => ({
-        url: `${BASE_URL}/blog/${post.slug}`,
+    const seenSlugs = new Set<string>()
+    const blogPages: MetadataRoute.Sitemap = []
+    for (const post of posts) {
+      const slug = post.slug.trim()
+      if (!slug || seenSlugs.has(slug) || /[\s/?#\\]/.test(slug) || slug.includes('..')) continue
+      seenSlugs.add(slug)
+      blogPages.push({
+        url: `${BASE_URL}/blog/${encodeURIComponent(slug)}`,
         lastModified: safeDate(post.updatedAt || post.date, now),
         changeFrequency: 'monthly',
         priority: 0.7,
-      }))
+      })
+    }
 
     const blogUpdated = latestDate(
       blogPages.map((page) => page.lastModified).filter((date): date is Date => date instanceof Date),
