@@ -1,46 +1,8 @@
-# Admin Page Overrides
+# Admin (`/adminpc`)
 
-> **PROJECT:** Femibion
-> **Generated:** 2026-06-20 10:11:20
-> **Page Type:** Dashboard / Data View
+The admin panel uses the shadcn/ui components in `components/ui/`, themed by the same tokens
+as the storefront (`app/globals.css`): plum primary, `#f4f2f7` ground, white cards, the same
+fonts. No storefront components (cart, header, stage colours) are used here.
 
-> ⚠️ **IMPORTANT:** Rules in this file **override** the Master file (`design-system/MASTER.md`).
-> Only deviations from the Master are documented here. For all other rules, refer to the Master.
-
----
-
-## Page-Specific Rules
-
-### Layout Overrides
-
-- **Max Width:** 1200px (standard)
-- **Layout:** Full-width sections, centered content
-
-### Spacing Overrides
-
-- No overrides — use Master spacing
-
-### Typography Overrides
-
-- No overrides — use Master typography
-
-### Color Overrides
-
-- No overrides — use Master colors
-
-### Component Overrides
-
-- Avoid: Use arbitrary large z-index values
-
----
-
-## Page-Specific Components
-
-- No unique components for this page
-
----
-
-## Recommendations
-
-- Effects: Deal movement animations, metric updates, leaderboard ranking changes, gauge needle movements, status change highlights
-- Layout: Define z-index scale system (10 20 30 50)
+- Keep status colours semantic and separate from the brand plum.
+- z-index scale: 10 (sticky table headers), 30 (admin header), 50 (dialogs, popovers).

@@ -5,6 +5,8 @@ import { getPrivacyPolicy } from '@/lib/privacy-policy'
 import { Header } from '@/components/femibion/header'
 import { Footer } from '@/components/femibion/footer'
 import { LegalEntityNotice } from '@/components/femibion/legal-entity-notice'
+import { SiteBreadcrumbs } from '@/components/femibion/site-breadcrumbs'
+import { PageIntro } from '@/components/femibion/page-intro'
 import { pageTitle } from '@/lib/seo'
 
 const PRIVACY_DESCRIPTION =
@@ -84,15 +86,17 @@ export default async function PrivacyPage() {
   return (
     <div className="min-h-screen">
       <Header texts={texts.header} images={images} />
-      <main className="py-12 md:py-16">
-        <div className="container mx-auto px-4 md:px-6 max-w-3xl">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl text-balance">{policy.title}</h1>
-          <p className="mt-2 text-sm text-muted-foreground">ბოლო განახლება: {dateStr}</p>
-          <LegalEntityNotice />
-          <div
-            className="privacy-content mt-8 space-y-4 text-foreground leading-relaxed [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mt-8 [&_h2]:mb-3 [&_p]:text-muted-foreground [&_ul]:list-disc [&_ul]:pl-6 [&_li]:text-muted-foreground"
-            dangerouslySetInnerHTML={{ __html: normalizePolicyContent(policy.contentHtml) }}
-          />
+      <main className="pb-14 pt-6 md:pb-20 md:pt-8">
+        <div className="wrap">
+          <SiteBreadcrumbs items={[{ href: '/', label: 'მთავარი' }, { label: policy.title }]} />
+          <div className="mx-auto max-w-[760px]">
+            <PageIntro title={policy.title} lead={`ბოლო განახლება: ${dateStr}`} className="mb-6" />
+            <LegalEntityNotice />
+            <div
+              className="privacy-content panel-flat mt-4 p-6 sm:p-8 grid gap-4 leading-[1.75] text-ink-soft [&_a]:text-primary [&_a]:underline [&_h2]:mt-6 [&_h2]:text-[1.3rem] [&_h2]:font-bold [&_h2]:leading-snug [&_h2]:text-foreground [&_h3]:mt-4 [&_h3]:font-bold [&_h3]:text-foreground [&_li]:pl-1 [&_ul]:grid [&_ul]:list-disc [&_ul]:gap-1.5 [&_ul]:pl-6 [&_ol]:grid [&_ol]:list-decimal [&_ol]:gap-1.5 [&_ol]:pl-6"
+              dangerouslySetInnerHTML={{ __html: normalizePolicyContent(policy.contentHtml) }}
+            />
+          </div>
         </div>
       </main>
       <Footer texts={texts.footer} images={images} />

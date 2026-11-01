@@ -1,47 +1,18 @@
-# Blog Page Overrides
+# Blog (`/blog`, `/blog/[slug]`)
 
-> **PROJECT:** Femibion
-> **Generated:** 2026-06-20 10:11:20
-> **Page Type:** Blog / Article
+Overrides and specifics on top of `../MASTER.md`.
 
-> ⚠️ **IMPORTANT:** Rules in this file **override** the Master file (`design-system/MASTER.md`).
-> Only deviations from the Master are documented here. For all other rules, refer to the Master.
+## List
 
----
+- `PageIntro` with `blog.title` / `blog.subtitle`.
+- Newest post is featured full width (image left, text right on desktop); the rest in a
+  3-column grid of `.panel-flat` cards with date, title, excerpt.
 
-## Page-Specific Rules
+## Article
 
-### Layout Overrides
-
-- **Max Width:** 1200px (standard)
-- **Layout:** Full-width sections, centered content
-- **Sections:** 1. Hero (Value Prop + Form), 2. Recent Issues/Archives, 3. Social Proof (Subscriber count), 4. About Author
-
-### Spacing Overrides
-
-- No overrides — use Master spacing
-
-### Typography Overrides
-
-- No overrides — use Master typography
-
-### Color Overrides
-
-- **Strategy:** Minimalist. Paper-like background. Text focus. Accent color for Subscribe.
-
-### Component Overrides
-
-- No overrides — use Master component specs
-
----
-
-## Page-Specific Components
-
-- No unique components for this page
-
----
-
-## Recommendations
-
-- Effects: Rounded corners (16-24px), organic curves (border-radius variations), natural shadows, flowing SVG shapes
-- CTA Placement: Hero inline form + Sticky header form
+- Reading column max 760px, centred inside `.wrap`.
+- Date line, h1, cover image (22px radius), table of contents when there are ≥3 h2s.
+- Body: 17.5px / 1.75 in `text-ink-soft`; h2 1.6rem, h3 1.22rem.
+- A single-`#` heading in post content is skipped (the page already renders the h1).
+- After the body: an order panel on `bg-f1-wash` with both packs and a link to the finder,
+  then share buttons, then related posts as cards.

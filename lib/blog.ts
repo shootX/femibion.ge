@@ -181,3 +181,10 @@ export function truncateExcerpt(text: string, maxChars: number = 200): string {
   const cut = text.slice(0, maxChars).lastIndexOf(' ')
   return (cut > 0 ? text.slice(0, cut) : text.slice(0, maxChars)) + '...'
 }
+
+/** "16 ოქტომბერი, 2026"-style date for article bylines; falls back to the raw value. */
+export function formatPostDate(value: string): string {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return date.toLocaleDateString('ka-GE', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Tbilisi' })
+}

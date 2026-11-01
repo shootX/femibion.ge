@@ -1,125 +1,94 @@
+'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
-import { Leaf, Heart, Baby, Droplets } from 'lucide-react'
-import { pageSlugForProduct } from '@/lib/product-pages'
-
-const ICONS = [Leaf, Heart, Baby, Droplets] as const
-
-type ProductItem = {
-  id?: string
-  name: string
-  price?: number
-  subtitle: string
-  description: string
-  features: string[]
-  image?: string
-}
+import { ArrowRight } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { useCart } from '@/components/femibion/cart'
+import { QtyStepper } from '@/components/femibion/qty-stepper'
 
 type ProductsTexts = {
   sectionTitle: string
   sectionSubtitle: string
-  ctaOrder: string
-  items: ProductItem[]
 }
 
-const FALLBACK_IMAGES = ['/images/femibion-1.webp', '/images/femibion-2.webp']
-const STYLES = [
-  { surface: 'bg-card/90', image: 'bg-secondary/75', detail: 'bg-secondary/70' },
-  { surface: 'bg-[#f4f2e9]/90', image: 'bg-accent/55', detail: 'bg-accent/60' },
-]
-
-export function ProductCards({ texts, images }: { texts: ProductsTexts; images?: string[] }) {
-  const fallback = images?.length ? images : FALLBACK_IMAGES
+export function ProductCards({ texts }: { texts: ProductsTexts }) {
+  const { products } = useCart()
 
   return (
-    <section id="products" className="section-pad bg-background/80" aria-label="Femibion პროდუქცია">
+    <section id="products" className="py-12 md:py-16" aria-labelledby="products-title">
       <div className="wrap">
-        <div className="mb-12 text-center md:mb-16">
-          <span className="eyebrow mb-4 justify-center">შერჩეული ფორმულები</span>
-          <h2 className="section-heading">
+        <div className="mb-6 grid max-w-[44rem] gap-2">
+          <h2 id="products-title" className="section-heading">
             {texts.sectionTitle}
           </h2>
-          <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-muted-foreground">
-            {texts.sectionSubtitle}
-          </p>
+          <p className="text-[17px] text-muted-foreground">{texts.sectionSubtitle}</p>
         </div>
 
-        <div className="mx-auto grid max-w-5xl gap-7 md:grid-cols-2 md:gap-8">
-          {texts.items.map((product, idx) => {
-            const style = STYLES[idx % STYLES.length]
-            const imageSrc = product.image || fallback[idx] || fallback[0]
-            const slug = pageSlugForProduct(product, idx)
-            const href = slug ? `/${slug}` : null
+        <div className="grid gap-4 md:grid-cols-2">
+          {products.map((product) => {
+            const second = product.slug === 'femibion-2'
+            const href = product.slug ? `/${product.slug}` : null
             return (
               <article
-                key={product.id ?? idx}
-                className={`group overflow-hidden rounded-[2rem] border border-border/70 ${style.surface} p-4 shadow-[var(--shadow-soft)] transition-shadow duration-200 hover:shadow-[var(--shadow-card)] md:p-5 ${idx % 2 === 1 ? 'md:mt-10' : ''}`}
+                key={product.id}
+                className="panel-flat grid grid-cols-[96px_minmax(0,1fr)] items-start gap-4 p-4 sm:grid-cols-[150px_minmax(0,1fr)] sm:gap-5"
               >
-                {href ? (
-                  <Link href={href} className="block cursor-pointer">
-                    <div className={`relative mb-7 aspect-[4/3] overflow-hidden rounded-[1.5rem] ${style.image}`}>
-                      <Image
-                        src={imageSrc}
-                        alt={`${product.name} - ${product.subtitle}`}
-                        fill
-                        className="object-cover saturate-[0.9]"
-                        sizes="(max-width: 768px) 100vw, 50vw"
-                      />
-                    </div>
-                  </Link>
-                ) : (
-                  <div className={`relative mb-7 aspect-[4/3] overflow-hidden rounded-[1.5rem] ${style.image}`}>
-                    <Image
-                      src={imageSrc}
-                      alt={`${product.name} - ${product.subtitle}`}
-                      fill
-                      className="object-cover saturate-[0.9]"
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                    />
-                  </div>
-                )}
-
-                <div className="space-y-5 px-2 pb-2">
-                  <div className="relative">
-                    <span className="mb-3 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-primary">
-                      <span className="h-px w-6 bg-primary/50" aria-hidden />
-                      {product.subtitle}
-                    </span>
-                    <div className="flex items-baseline justify-between gap-4">
-                      {href ? (
-                        <h3 className="text-2xl font-semibold tracking-[-0.02em] text-foreground">
-                          <Link href={href} className="cursor-pointer hover:text-primary">
-                            {product.name}
-                          </Link>
-                        </h3>
-                      ) : (
-                        <h3 className="text-2xl font-semibold tracking-[-0.02em] text-foreground">{product.name}</h3>
-                      )}
-                    {product.price != null && (
-                        <p className="shrink-0 text-xl font-semibold text-primary">{product.price} ₾</p>
+                <div
+                  className={cn(
+                    'relative grid aspect-square place-items-center rounded-2xl',
+                    second ? 'bg-f2-wash' : 'bg-f1-wash'
+                  )}
+                >
+                  <Image
+                    src={product.image}
+                    alt={`${product.name} — ${product.subtitle}`}
+                    fill
+                    sizes="(max-width: 640px) 96px, 150px"
+                    className="object-contain p-2 mix-blend-multiply"
+                  />
+                </div>
+                <div className="flex h-full min-w-0 flex-col items-start gap-2">
+                  <h3 className="text-[1.5rem] font-bold leading-tight tracking-[-0.02em]">
+                    {href ? (
+                      <Link href={href} className="hover:text-primary">
+                        {product.name}
+                      </Link>
+                    ) : (
+                      product.name
                     )}
-                    </div>
-                    <p className="mt-4 leading-7 text-muted-foreground">{product.description}</p>
+                  </h3>
+                  <p
+                    className={cn(
+                      'text-[13px] font-bold uppercase tracking-[0.06em]',
+                      second ? 'text-f2-ink' : 'text-f1-ink'
+                    )}
+                  >
+                    {product.subtitle}
+                  </p>
+                  <p className="text-[14.5px] leading-relaxed text-muted-foreground">{product.description}</p>
+                  {product.features.length > 0 && (
+                    <ul className="flex flex-wrap gap-1.5" aria-label="მთავარი კომპონენტები">
+                      {product.features.map((feature) => (
+                        <li key={feature} className="chip bg-background text-foreground">
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <div className="mt-auto flex w-full flex-wrap items-center justify-between gap-3 pt-1.5">
+                    <span className="text-[1.45rem] font-extrabold tabular-nums">{product.price} ₾</span>
+                    <QtyStepper product={product} />
                   </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    {(product.features ?? []).map((label, index) => {
-                      const Icon = ICONS[index % ICONS.length]
-                      return (
-                        <span
-                          key={index}
-                          className={`inline-flex items-center gap-2 rounded-xl ${style.detail} px-3.5 py-2 text-sm font-medium text-foreground`}
-                        >
-                          <Icon className="h-4 w-4 text-primary" aria-hidden />
-                          {label}
-                        </span>
-                      )
-                    })}
-                  </div>
-
-                  <a href="#order" className="btn-primary w-full">
-                    {texts.ctaOrder}
-                  </a>
+                  {href && (
+                    <Link
+                      href={href}
+                      className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-primary underline-offset-4 hover:underline"
+                    >
+                      დეტალურად
+                      <ArrowRight className="h-4 w-4" aria-hidden />
+                    </Link>
+                  )}
                 </div>
               </article>
             )

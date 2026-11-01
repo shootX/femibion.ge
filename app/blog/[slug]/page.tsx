@@ -4,7 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { getSiteTexts } from '@/lib/texts'
 import { getImagePaths } from '@/lib/images-server'
-import { getBlogPost, getBlogPosts, countWords, articleTitle, articleDescription, articleImageAlt, relatedPosts } from '@/lib/blog'
+import { getBlogPost, getBlogPosts, countWords, articleTitle, articleDescription, articleImageAlt, relatedPosts, formatPostDate } from '@/lib/blog'
 import { extractArticleFaq } from '@/lib/blog-content'
 import { Header } from '@/components/femibion/header'
 import { Footer } from '@/components/femibion/footer'
@@ -12,6 +12,9 @@ import { ShareButtons } from '@/components/femibion/share-buttons'
 import { BlogMarkdown, BlogToc } from '@/components/femibion/blog-markdown'
 import { SiteBreadcrumbs } from '@/components/femibion/site-breadcrumbs'
 import { pageTitle } from '@/lib/seo'
+import { BlogPostCard } from '@/components/femibion/blog-post-card'
+import { pageSlugForProduct } from '@/lib/product-slug'
+import { cn } from '@/lib/utils'
 import { BLOG_COVER_HEIGHT, BLOG_COVER_WIDTH } from '@/lib/blog-image'
 
 export const revalidate = 3600
@@ -79,12 +82,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-function formatDate(value: string) {
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return value
-  return date.toLocaleDateString('ka-GE', { year: 'numeric', month: 'long', day: 'numeric' })
-}
-
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params
   const [texts, images, post, posts] = await Promise.all([
@@ -150,14 +147,16 @@ export default async function BlogPostPage({ params }: Props) {
       }
     : null
 
+  const shopItems = texts.products.items.map((item, idx) => ({ ...item, slug: pageSlugForProduct(item, idx) }))
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       {faqLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />}
       <Header texts={texts.header} images={images} />
-      <main>
-        <article className="wrap section-pad !pt-8">
+      <main className="pb-14 pt-6 md:pb-20 md:pt-8">
+        <div className="wrap">
           <SiteBreadcrumbs
             items={[
               { href: '/', label: 'მთავარი' },
@@ -165,66 +164,80 @@ export default async function BlogPostPage({ params }: Props) {
               { label: post.title },
             ]}
           />
-          <div className="relative mb-8 aspect-video overflow-hidden rounded-2xl bg-muted shadow-[var(--shadow-card)]">
-            <Image
-              src={post.image}
-              alt={imageAlt}
-              fill
-              unoptimized
-              className="object-cover"
-              priority
-              fetchPriority="high"
-              sizes="(max-width: 768px) 100vw, 768px"
-            />
-          </div>
-          <h1 className="mb-4 text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            {post.title}
-          </h1>
-          <div className="mb-8 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-            <time dateTime={published}>{formatDate(published)}</time>
-            {modified !== published && (
-              <time dateTime={modified}>განახლდა {formatDate(modified)}</time>
-            )}
-          </div>
 
-          <BlogToc content={post.content} />
-          <div className="prose prose-neutral max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-p:leading-relaxed prose-strong:text-foreground prose-a:text-cta prose-a:underline">
-            <BlogMarkdown content={post.content} />
-          </div>
+          <article className="mx-auto max-w-[760px]">
+            <header className="mb-6 grid gap-3">
+              <p className="flex flex-wrap gap-x-4 gap-y-1 text-[14px] text-muted-foreground">
+                <time dateTime={published}>{formatPostDate(published)}</time>
+                {modified !== published && <time dateTime={modified}>განახლდა {formatPostDate(modified)}</time>}
+              </p>
+              <h1 className="break-words text-[1.8rem] font-bold leading-[1.15] tracking-[-0.02em] sm:text-[2.6rem]">{post.title}</h1>
+            </header>
+
+            <div className="relative mb-8 aspect-video overflow-hidden rounded-[22px] bg-muted">
+              <Image
+                src={post.image}
+                alt={imageAlt}
+                fill
+                unoptimized
+                className="object-cover"
+                priority
+                fetchPriority="high"
+                sizes="(max-width: 800px) 100vw, 760px"
+              />
+            </div>
+
+            <BlogToc content={post.content} />
+            <div className="article-body">
+              <BlogMarkdown content={post.content} />
+            </div>
+
+            <aside className="mt-10 grid gap-4 rounded-[22px] bg-f1-wash p-5 sm:p-7" aria-label="შეკვეთა">
+              <div className="grid gap-1">
+                <h2 className="text-[1.4rem] font-bold">შეუკვეთე ოფიციალურად</h2>
+                <p className="text-[15px] text-muted-foreground">მიწოდება მთელ საქართველოში, გადახდა მიწოდებისას.</p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {shopItems.map((item) => (
+                  <Link
+                    key={item.id ?? item.name}
+                    href={item.slug ? `/${item.slug}` : '/#products'}
+                    className="press group grid grid-cols-[64px_minmax(0,1fr)] items-center gap-3 rounded-[16px] bg-white p-3"
+                  >
+                    <span className={cn('relative aspect-square rounded-xl', item.slug === 'femibion-2' ? 'bg-f2-wash' : 'bg-f1-wash')}>
+                      {item.image && <Image src={item.image} alt="" fill sizes="64px" className="object-contain p-1 mix-blend-multiply" />}
+                    </span>
+                    <span className="grid min-w-0 leading-snug">
+                      <b className="group-hover:text-primary">{item.name}</b>
+                      <span className="text-[13px] text-muted-foreground">{item.subtitle}</span>
+                      {item.price != null && <span className="mt-0.5 font-bold tabular-nums">{item.price} ₾</span>}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+              <Link href="/#finder" className="btn-primary justify-self-start">
+                რომელი მჭირდება? გამოთვალე კვირით
+              </Link>
+            </aside>
+
+            <div className="mt-8 border-t border-border pt-6">
+              <ShareButtons url={`/blog/${post.slug}`} title={post.title} />
+            </div>
+          </article>
 
           {related.length > 0 && (
-            <section className="mt-12 border-t border-border/60 pt-8" aria-label="მსგავსი სტატიები">
-              <h2 className="mb-4 text-xl font-semibold text-foreground">მსგავსი სტატიები</h2>
-              <ul className="space-y-3">
+            <section className="mt-14 border-t border-border pt-10" aria-labelledby="related-title">
+              <h2 id="related-title" className="mb-5 text-[1.6rem] font-bold tracking-[-0.01em]">
+                მსგავსი სტატიები
+              </h2>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {related.map((item) => (
-                  <li key={item.slug}>
-                    <Link href={`/blog/${item.slug}`} className="cursor-pointer font-medium text-primary hover:underline">
-                      {item.title}
-                    </Link>
-                  </li>
+                  <BlogPostCard key={item.slug} post={item} readMoreText={texts.blog?.readMore ?? 'წაიკითხე მეტი'} />
                 ))}
-              </ul>
+              </div>
             </section>
           )}
-
-          <aside className="mt-10 rounded-2xl border border-border/70 bg-secondary/50 p-6">
-            <h2 className="text-xl font-semibold text-foreground">შეუკვეთე ოფიციალურად</h2>
-            <p className="mt-2 leading-7 text-muted-foreground">
-              {`${texts.products.items
-                .map((item) => (item.price != null ? `${item.name} — ${item.price} ₾` : item.name))
-                .join(', ')}. მიწოდება საქართველოში.`}
-            </p>
-            <div className="mt-5 flex flex-wrap gap-3">
-              <Link href="/femibion-1" className="btn-ghost">Femibion 1</Link>
-              <Link href="/femibion-2" className="btn-ghost">Femibion 2</Link>
-              <Link href="/#order" className="btn-primary">შეკვეთა</Link>
-            </div>
-          </aside>
-
-          <div className="mt-12 border-t border-border/60 pt-8">
-            <ShareButtons url={`/blog/${post.slug}`} title={post.title} />
-          </div>
-        </article>
+        </div>
       </main>
       <Footer texts={texts.footer} images={images} />
     </div>
