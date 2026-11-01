@@ -1,5 +1,3 @@
-import { Heart, Leaf } from 'lucide-react'
-
 type SeoContentTexts = {
   sectionAriaLabel: string
   column1Title: string
@@ -10,33 +8,27 @@ type SeoContentTexts = {
   column2Paragraph2: string
 }
 
+/** Long-form answers to the two questions people search for most; kept on the homepage for SEO. */
 export function SeoContent({ texts }: { texts: SeoContentTexts }) {
+  const columns = [
+    { title: texts.column1Title, paragraphs: [texts.column1Paragraph1, texts.column1Paragraph2] },
+    { title: texts.column2Title, paragraphs: [texts.column2Paragraph1, texts.column2Paragraph2] },
+  ]
+
   return (
-    <section className="section-pad border-y border-border/60 bg-secondary/45" aria-label={texts.sectionAriaLabel}>
+    <section className="py-12 md:py-16" aria-label={texts.sectionAriaLabel}>
       <div className="wrap">
-        <div className="mx-auto max-w-5xl">
-          <div className="mb-12 max-w-2xl">
-            <span className="eyebrow mb-4">რატომ Femibion</span>
-            <h2 className="section-heading">ზრუნვა, რომელიც ცოდნაზეა დაფუძნებული</h2>
-          </div>
-          <div className="grid gap-6 md:grid-cols-2 md:gap-8">
-            <article className="paper-card rounded-[1.75rem] p-7 md:p-9">
-              <div className="mb-6 flex h-11 w-11 items-center justify-center rounded-full bg-accent text-accent-foreground">
-                <Leaf className="h-5 w-5" aria-hidden />
-              </div>
-              <h3 className="mb-4 text-2xl font-semibold tracking-[-0.02em] text-foreground">{texts.column1Title}</h3>
-              <p className="mb-4 leading-7 text-muted-foreground">{texts.column1Paragraph1}</p>
-              <p className="leading-7 text-muted-foreground">{texts.column1Paragraph2}</p>
+        <div className="grid gap-4 md:grid-cols-2">
+          {columns.map((column) => (
+            <article key={column.title} className="panel-flat grid content-start gap-3 p-6 sm:p-8">
+              <h2 className="text-[1.4rem] font-bold leading-snug tracking-[-0.01em]">{column.title}</h2>
+              {column.paragraphs.map((paragraph, i) => (
+                <p key={i} className="leading-relaxed text-muted-foreground">
+                  {paragraph}
+                </p>
+              ))}
             </article>
-            <article className="paper-card rounded-[1.75rem] p-7 md:mt-8 md:p-9">
-              <div className="mb-6 flex h-11 w-11 items-center justify-center rounded-full bg-secondary text-primary">
-                <Heart className="h-5 w-5" aria-hidden />
-              </div>
-              <h3 className="mb-4 text-2xl font-semibold tracking-[-0.02em] text-foreground">{texts.column2Title}</h3>
-              <p className="mb-4 leading-7 text-muted-foreground">{texts.column2Paragraph1}</p>
-              <p className="leading-7 text-muted-foreground">{texts.column2Paragraph2}</p>
-            </article>
-          </div>
+          ))}
         </div>
       </div>
     </section>

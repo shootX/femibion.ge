@@ -1,50 +1,24 @@
-# Landing Page Overrides
+# Homepage (`/`)
 
-> **PROJECT:** Femibion
-> **Generated:** 2026-06-20 10:11:19
-> **Page Type:** Landing / Marketing
+Overrides and specifics on top of `../MASTER.md`.
 
-> ⚠️ **IMPORTANT:** Rules in this file **override** the Master file (`design-system/MASTER.md`).
-> Only deviations from the Master are documented here. For all other rules, refer to the Master.
+**Job:** tell a visitor which Femibion fits their week and let them order it on the same page.
 
----
+## Section order
 
-## Page-Specific Rules
+1. **Stage finder** (`#finder`) — badge, h1 (`hero.title`, keep the SEO keyword), description,
+   three trust facts (official product, delivery across Georgia, pay on delivery), then two
+   panels: the week slider and the live recommendation. This is the hero; no stock photo.
+2. **How it works** — three numbered steps (it is a real sequence).
+3. **Products** (`#products`) — both packs with steppers bound to the cart.
+4. **Checkout** (`#order`) — form left, sticky summary right on desktop.
+5. **SEO text** — the two long-form answers from `seoContent`.
+6. **FAQ** (`#faq`) — six short answers, link to `/faq`.
 
-### Layout Overrides
+## Editable texts that drive this page
 
-- **Max Width:** 1200px (standard)
-- **Layout:** Full-width sections, centered content
-- **Sections:** 1. Dynamic hero (personalized), 2. Relevant features, 3. Tailored testimonials, 4. Smart CTA
+`hero.badge`, `hero.title`, `hero.description`, `pregnancy.recommendedLabel`,
+`pregnancy.stages` (the first stage with `product: 2` sets the switch week),
+`products.sectionTitle/sectionSubtitle`, the whole `order` block, `seoContent`.
 
-### Spacing Overrides
-
-- No overrides — use Master spacing
-
-### Typography Overrides
-
-- No overrides — use Master typography
-
-### Color Overrides
-
-- **Strategy:** Adaptive based on user data. A/B test color variations per segment.
-
-### Component Overrides
-
-- Avoid: Unoptimized full-size images
-- Avoid: No visual feedback on current location
-
----
-
-## Page-Specific Components
-
-- No unique components for this page
-
----
-
-## Recommendations
-
-- Effects: Badge hover effects, metric pulse animations, certificate carousel, smooth stat reveal
-- Performance: Use appropriate size and format (WebP)
-- Navigation: Highlight active nav item with color/underline
-- CTA Placement: Context-aware placement based on user segment
+The admin "hero image" slot is no longer shown on the homepage.

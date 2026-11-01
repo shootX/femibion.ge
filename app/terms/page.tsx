@@ -5,6 +5,8 @@ import { pageTitle } from '@/lib/seo'
 import { Header } from '@/components/femibion/header'
 import { Footer } from '@/components/femibion/footer'
 import { LegalEntityNotice } from '@/components/femibion/legal-entity-notice'
+import { SiteBreadcrumbs } from '@/components/femibion/site-breadcrumbs'
+import { PageIntro } from '@/components/femibion/page-intro'
 import { LEGAL_ENTITY } from '@/lib/legal'
 
 export const revalidate = 86400
@@ -42,11 +44,13 @@ export default async function TermsPage() {
   return (
     <div className="min-h-screen">
       <Header texts={texts.header} images={images} />
-      <main className="py-12 md:py-16">
-        <div className="container mx-auto max-w-3xl px-4 md:px-6">
-          <h1 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">წესები და პირობები</h1>
+      <main className="pb-14 pt-6 md:pb-20 md:pt-8">
+        <div className="wrap">
+          <SiteBreadcrumbs items={[{ href: '/', label: 'მთავარი' }, { label: 'წესები და პირობები' }]} />
+          <div className="mx-auto max-w-[760px]">
+          <PageIntro title="წესები და პირობები" className="mb-6" />
           <LegalEntityNotice />
-          <div className="mt-8 space-y-4 leading-relaxed [&_h2]:mb-3 [&_h2]:mt-8 [&_h2]:text-xl [&_h2]:font-semibold [&_li]:text-muted-foreground [&_p]:text-muted-foreground [&_ul]:list-disc [&_ul]:pl-6">
+          <div className="panel-flat mt-4 p-6 sm:p-8 grid gap-4 leading-[1.75] text-ink-soft [&_a]:text-primary [&_a]:underline [&_h2]:mt-6 [&_h2]:text-[1.3rem] [&_h2]:font-bold [&_h2]:leading-snug [&_h2]:text-foreground [&_h3]:mt-4 [&_h3]:font-bold [&_h3]:text-foreground [&_li]:pl-1 [&_ul]:grid [&_ul]:list-disc [&_ul]:gap-1.5 [&_ul]:pl-6 [&_ol]:grid [&_ol]:list-decimal [&_ol]:gap-1.5 [&_ol]:pl-6">
             <p>
               ეს პირობები მოქმედებს femibion.ge-ზე გაფორმებულ შეკვეთებზე. შეკვეთის გაგზავნამდე საჭიროა
               თანხმობა ამ წესებზე და კონფიდენციალურობის პოლიტიკაზე.
@@ -79,6 +83,7 @@ export default async function TermsPage() {
               <li>მისამართი: {LEGAL_ENTITY.address}</li>
               <li>სამუშაო საათები: ორშაბათი–შაბათი, 10:00–19:00</li>
             </ul>
+          </div>
           </div>
         </div>
       </main>

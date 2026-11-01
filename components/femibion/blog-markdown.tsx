@@ -11,13 +11,13 @@ function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
       const isInternal = href.startsWith('/') || href.startsWith('#') || href.includes('femibion.ge')
       if (isInternal) {
         return (
-          <Link key={key} href={href} className="cursor-pointer text-primary underline">
+          <Link key={key} href={href} className="font-medium text-primary underline underline-offset-2 hover:decoration-2">
             {label}
           </Link>
         )
       }
       return (
-        <a key={key} href={href} target="_blank" rel="noopener noreferrer" className="cursor-pointer text-primary underline">
+        <a key={key} href={href} target="_blank" rel="noopener noreferrer" className="font-medium text-primary underline underline-offset-2 hover:decoration-2">
           {label}
         </a>
       )
@@ -44,9 +44,9 @@ export function BlogMarkdown({ content }: { content: string }) {
     const items = listBuffer
     listBuffer = []
     blocks.push(
-      <ul key={key} className="mb-4 list-disc space-y-2 pl-6 text-lg text-muted-foreground">
+      <ul key={key} className="mb-5 list-disc space-y-2 pl-6 text-[17.5px] text-ink-soft marker:text-primary">
         {items.map((item, i) => (
-          <li key={i} className="leading-relaxed">
+          <li key={i} className="pl-1 leading-[1.7]">
             {renderInline(item, `${key}-li-${i}`)}
           </li>
         ))}
@@ -63,13 +63,12 @@ export function BlogMarkdown({ content }: { content: string }) {
     }
     flushList(`ul-${i}`)
 
-    if (!trimmed) {
-      blocks.push(<br key={i} />)
-      return
-    }
+    if (!trimmed) return
+    // A single-# heading repeats the page's own <h1>; the article title is rendered by the page.
+    if (/^#(?!#)\s*/.test(trimmed)) return
     if (trimmed.startsWith('###')) {
       blocks.push(
-        <h3 key={i} className="mb-4 mt-8 scroll-mt-28 text-xl font-bold text-foreground">
+        <h3 key={i} className="mb-3 mt-8 scroll-mt-24 text-[1.22rem] font-bold leading-snug text-foreground">
           {renderInline(trimmed.replace(/^###\s*/, ''), `h3-${i}`)}
         </h3>
       )
@@ -79,7 +78,7 @@ export function BlogMarkdown({ content }: { content: string }) {
       h2Count += 1
       const text = plainText(trimmed.replace(/^##\s*/, ''))
       blocks.push(
-        <h2 key={i} id={headingId(text, h2Count)} className="mb-5 mt-10 scroll-mt-28 text-2xl font-bold text-foreground">
+        <h2 key={i} id={headingId(text, h2Count)} className="mb-4 mt-11 scroll-mt-24 text-[1.6rem] font-bold leading-snug tracking-[-0.01em] text-foreground">
           {renderInline(trimmed.replace(/^##\s*/, ''), `h2-${i}`)}
         </h2>
       )
@@ -87,14 +86,14 @@ export function BlogMarkdown({ content }: { content: string }) {
     }
     if (trimmed.startsWith('**') && trimmed.endsWith('**') && trimmed.indexOf('**', 2) === trimmed.length - 2) {
       blocks.push(
-        <p key={i} className="mb-2 mt-6 font-bold text-foreground">
+        <p key={i} className="mb-2 mt-6 text-[17.5px] font-bold text-foreground">
           {trimmed.replace(/\*\*/g, '')}
         </p>
       )
       return
     }
     blocks.push(
-      <p key={i} className="mb-4 text-lg leading-relaxed text-muted-foreground">
+      <p key={i} className="mb-5 text-[17.5px] leading-[1.75] text-ink-soft">
         {renderInline(trimmed, `p-${i}`)}
       </p>
     )
@@ -109,12 +108,12 @@ export function BlogToc({ content }: { content: string }) {
   if (toc.length < 3) return null
 
   return (
-    <nav aria-label="სარჩევი" className="mb-8 rounded-2xl border border-border/70 bg-card p-5">
-      <p className="mb-3 text-sm font-semibold text-foreground">სარჩევი</p>
-      <ol className="space-y-2 text-sm">
+    <nav aria-label="სარჩევი" className="panel-flat mb-8 p-5 sm:p-6">
+      <p className="mb-3 text-[12.5px] font-bold uppercase tracking-[0.07em] text-primary">სარჩევი</p>
+      <ol className="grid list-decimal gap-2 pl-5 text-[15px] marker:text-muted-foreground">
         {toc.map((item) => (
           <li key={item.id}>
-            <a href={`#${item.id}`} className="cursor-pointer text-muted-foreground hover:text-primary">
+            <a href={`#${item.id}`} className="text-ink-soft underline-offset-2 hover:text-primary hover:underline">
               {item.text}
             </a>
           </li>

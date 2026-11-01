@@ -1,9 +1,7 @@
-'use client'
-
-import Image from 'next/image'
 import Link from 'next/link'
-import { Facebook, Instagram, MapPin, Phone, Mail, Shield, Award, Clock } from 'lucide-react'
+import { Clock, Facebook, Instagram, Mail, MapPin, Phone } from 'lucide-react'
 import { FOOTER_LEGAL_LINE, LEGAL_ENTITY } from '@/lib/legal'
+
 type FooterTexts = {
   brand: string
   logoLetter: string
@@ -13,8 +11,6 @@ type FooterTexts = {
   phone: string
   email: string
   socialTitle: string
-  certificatesTitle: string
-  certificatesNote: string
   copyright: string
   faqLinkLabel?: string
   privacyLinkLabel?: string
@@ -24,139 +20,97 @@ type FooterTexts = {
 }
 type FooterImages = { logo: string; hasLogo: boolean }
 
-export function Footer({ texts, images }: { texts: FooterTexts; images?: FooterImages }) {
+export function Footer({ texts }: { texts: FooterTexts; images?: FooterImages }) {
   const phoneHref = `tel:${texts.phone.replace(/[^\d+]/g, '')}`
+  const infoLinks = [
+    { href: '/#finder', label: 'რომელი Femibion მჭირდება?' },
+    { href: '/femibion-1', label: 'Femibion 1' },
+    { href: '/femibion-2', label: 'Femibion 2' },
+    { href: '/blog', label: 'ბლოგი' },
+    { href: '/faq', label: texts.faqLinkLabel || 'ხშირად დასმული კითხვები' },
+  ]
+  const legalLinks = [
+    { href: '/terms', label: texts.termsLinkLabel || 'წესები და პირობები' },
+    { href: '/privacy', label: texts.privacyLinkLabel || 'კონფიდენციალურობის პოლიტიკა' },
+  ]
 
   return (
-    <footer
-      className="border-t border-white/10 bg-footer py-14 text-white md:py-20"
-      role="contentinfo"
-      aria-label="ფუტერი"
-    >
-      <div className="wrap">
-        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-[1.2fr_1fr_0.8fr_0.9fr]">
-          <div>
-            <div className="mb-4 flex items-center gap-2">
-              {images?.hasLogo && images.logo ? (
-                <div className="relative h-10 w-28">
-                  <Image
-                    src={images.logo}
-                    alt={texts.brand}
-                    fill
-                    className="object-contain object-left brightness-0 invert"
-                    sizes="112px"
-                  />
-                </div>
-              ) : (
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
-                  <span className="font-bold">{texts.logoLetter}</span>
-                </div>
-              )}
-            </div>
-            <p className="max-w-xs text-sm leading-7 text-white/70">{texts.description}</p>
-          </div>
+    <footer className="border-t border-border bg-white pb-12 pt-11 text-[14.5px] text-muted-foreground" aria-label="ფუტერი">
+      <div className="wrap grid gap-8 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.3fr)_repeat(3,minmax(0,1fr))]">
+        <div className="grid content-start gap-2.5 sm:col-span-2 lg:col-span-1">
+          <p className="text-[15px] font-bold text-foreground">{texts.brand} Georgia</p>
+          <p className="max-w-[34ch] leading-relaxed">{texts.description}</p>
+        </div>
 
-          <div>
-            <p className="mb-5 text-sm font-semibold uppercase tracking-[0.12em] text-white/90">{texts.contactTitle}</p>
-            <ul className="space-y-3 text-sm text-white/70">
-              <li className="flex items-start gap-3">
-                <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[#d9b58e]" aria-hidden />
-                {texts.address}
-              </li>
-              {texts.hours && (
-                <li className="flex items-start gap-3">
-                  <Clock className="mt-0.5 h-5 w-5 shrink-0 text-[#d9b58e]" aria-hidden />
-                  {texts.hours}
-                </li>
-              )}
-              <li className="flex items-center gap-3">
-                <Phone className="h-5 w-5 shrink-0 text-[#d9b58e]" aria-hidden />
-                <a
-                  href={phoneHref}
-                  className="cursor-pointer transition-colors hover:text-white"
-                >
-                  {texts.phone}
-                </a>
-              </li>
-              <li className="flex items-center gap-3">
-                <Mail className="h-5 w-5 shrink-0 text-[#d9b58e]" aria-hidden />
-                <a href={`mailto:${texts.email}`} className="cursor-pointer transition-colors hover:text-white">
-                  {texts.email}
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <p className="mb-5 text-sm font-semibold uppercase tracking-[0.12em] text-white/90">{texts.socialTitle}</p>
-            <div className="flex gap-3">
-              <a
-                href={LEGAL_ENTITY.facebook}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/5 transition-colors hover:bg-white/15"
-                aria-label="Facebook"
-              >
-                <Facebook className="h-5 w-5" />
+        <div>
+          <p className="mb-2.5 text-[14px] font-bold text-foreground">{texts.contactTitle}</p>
+          <ul className="grid gap-2.5">
+            <li className="flex items-start gap-2.5">
+              <Phone className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+              <a href={phoneHref} className="text-foreground tabular-nums hover:text-primary">
+                {texts.phone}
               </a>
-              <a
-                href="https://www.instagram.com/femibiongeorgia"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/5 transition-colors hover:bg-white/15"
-                aria-label="Instagram"
-              >
-                <Instagram className="h-5 w-5" />
+            </li>
+            <li className="flex items-start gap-2.5">
+              <Mail className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+              <a href={`mailto:${texts.email}`} className="break-all text-foreground hover:text-primary">
+                {texts.email}
               </a>
-            </div>
-          </div>
+            </li>
+            {texts.hours && (
+              <li className="flex items-start gap-2.5">
+                <Clock className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+                {texts.hours}
+              </li>
+            )}
+            <li className="flex items-start gap-2.5">
+              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+              {texts.address}
+            </li>
+          </ul>
+        </div>
 
-          <div>
-            <p className="mb-5 text-sm font-semibold uppercase tracking-[0.12em] text-white/90">{texts.certificatesTitle}</p>
-            <div className="flex gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-white/10 bg-white/5">
-                <Shield className="h-7 w-7 text-[#d9b58e]" aria-hidden />
-              </div>
-              <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-white/10 bg-white/5">
-                <Award className="h-7 w-7 text-[#d9b58e]" aria-hidden />
-              </div>
-            </div>
-            <p className="mt-3 text-sm text-white/50">{texts.certificatesNote}</p>
+        <nav aria-label="ინფორმაცია">
+          <p className="mb-2.5 text-[14px] font-bold text-foreground">ინფორმაცია</p>
+          <ul className="grid gap-2">
+            {[...infoLinks, ...legalLinks].map((link) => (
+              <li key={link.href}>
+                <Link href={link.href} className="text-foreground hover:text-primary">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <div>
+          <p className="mb-2.5 text-[14px] font-bold text-foreground">{texts.socialTitle}</p>
+          <div className="flex gap-2.5">
+            <a
+              href={LEGAL_ENTITY.facebook}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Facebook"
+              className="press grid h-11 w-11 place-items-center rounded-[14px] bg-background text-foreground hover:text-primary"
+            >
+              <Facebook className="h-5 w-5" aria-hidden />
+            </a>
+            <a
+              href="https://www.instagram.com/femibiongeorgia"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram"
+              className="press grid h-11 w-11 place-items-center rounded-[14px] bg-background text-foreground hover:text-primary"
+            >
+              <Instagram className="h-5 w-5" aria-hidden />
+            </a>
           </div>
         </div>
 
-        <div className="mt-10 border-t border-white/10 pt-8 text-center text-sm text-white/50">
-          {texts.warningText && (
-            <p className="mx-auto mb-4 max-w-2xl italic text-white/60">{texts.warningText}</p>
-          )}
-          <div className="mb-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
-            {texts.faqLinkLabel && (
-              <Link
-                href="/faq"
-                className="cursor-pointer text-white/70 hover:text-primary hover:underline"
-              >
-                {texts.faqLinkLabel}
-              </Link>
-            )}
-            {texts.termsLinkLabel && (
-              <Link
-                href="/terms"
-                className="cursor-pointer text-white/70 hover:text-primary hover:underline"
-              >
-                {texts.termsLinkLabel}
-              </Link>
-            )}
-            {texts.privacyLinkLabel && (
-              <Link
-                href="/privacy"
-                className="cursor-pointer text-white/70 hover:text-primary hover:underline"
-              >
-                {texts.privacyLinkLabel}
-              </Link>
-            )}
-          </div>
+        <div className="grid gap-1.5 border-t border-border pt-5 text-[13px] leading-relaxed sm:col-span-2 lg:col-span-4">
+          {texts.warningText && <p>{texts.warningText}</p>}
           <p>{texts.copyright}</p>
-          <p className="mx-auto mt-3 max-w-3xl text-xs leading-6 text-white/70">{FOOTER_LEGAL_LINE}</p>
+          <p>{FOOTER_LEGAL_LINE}</p>
         </div>
       </div>
     </footer>

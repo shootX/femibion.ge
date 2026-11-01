@@ -2,15 +2,14 @@ import type { Metadata } from 'next'
 import { getSiteTexts } from '@/lib/texts'
 import { getImagePaths } from '@/lib/images-server'
 import { Header } from '@/components/femibion/header'
-import { Hero } from '@/components/femibion/hero'
+import { StageFinder } from '@/components/femibion/stage-finder'
+import { HowItWorks } from '@/components/femibion/how-it-works'
 import { ProductCards } from '@/components/femibion/product-cards'
-import { PregnancySlider } from '@/components/femibion/pregnancy-slider'
 import { OrderForm } from '@/components/femibion/order-form'
 import { Footer } from '@/components/femibion/footer'
 import { FaqSection } from '@/components/femibion/faq-section'
 import { StructuredData } from '@/components/femibion/structured-data'
 import { SeoContent } from '@/components/femibion/seo-content'
-import { TrustBar } from '@/components/femibion/trust-bar'
 
 export const revalidate = 3600
 
@@ -50,12 +49,11 @@ export default async function FemibionLandingPage({
       <StructuredData />
       <Header texts={texts.header} images={images} />
       <main>
-        <Hero texts={texts.hero} imageSrc={images.hero} />
-        <TrustBar />
-        <ProductCards texts={texts.products} images={[images.product1, images.product2]} />
+        <StageFinder hero={texts.hero} pregnancy={texts.pregnancy} />
+        <HowItWorks />
+        <ProductCards texts={texts.products} />
+        <OrderForm texts={texts.order} preselectId={product} />
         <SeoContent texts={texts.seoContent} />
-        <PregnancySlider texts={texts.pregnancy} />
-        <OrderForm texts={texts.order} products={texts.products.items} preselectId={product} />
         <FaqSection />
       </main>
       <Footer texts={texts.footer} images={images} />

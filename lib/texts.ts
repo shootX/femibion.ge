@@ -24,6 +24,7 @@ export type SiteTexts = {
       features: string[]
       image?: string
       orderLabel?: string
+      stock?: number
     }>
   }
   pregnancy: {
@@ -255,6 +256,7 @@ function productToSiteItem(p: Product) {
     features: p.features,
     image: p.image,
     orderLabel: p.orderLabel,
+    stock: p.stock,
   }
 }
 

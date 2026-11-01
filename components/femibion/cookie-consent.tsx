@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
 import { Cookie } from 'lucide-react'
 import { setMetaConsent } from '@/lib/analytics'
 
@@ -57,31 +56,35 @@ export function CookieConsent({ texts }: CookieConsentProps) {
   if (!isVisible) return null
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-[100] md:bottom-8 md:left-auto md:right-8 md:max-w-md">
-      <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-[var(--shadow-card)]">
-        <div className="flex items-start gap-4">
-          <div className="shrink-0 rounded-lg bg-primary/10 p-2 text-primary">
-            <Cookie className="h-5 w-5" />
+    <div
+      role="dialog"
+      aria-labelledby="cookie-title"
+      className="fixed inset-x-3 z-[100] [bottom:calc(12px+env(safe-area-inset-bottom,0px))] md:inset-x-auto md:right-6 md:max-w-[26rem] md:[bottom:calc(24px+env(safe-area-inset-bottom,0px))]"
+    >
+      <div className="panel animate-in fade-in slide-in-from-bottom-2 grid gap-4 p-5 duration-300">
+        <div className="flex items-start gap-3.5">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-background text-primary">
+            <Cookie className="h-5 w-5" aria-hidden />
+          </span>
+          <div className="grid gap-1">
+            <h2 id="cookie-title" className="text-[15.5px] font-bold">
+              {texts.title}
+            </h2>
+            <p className="text-[14px] leading-normal text-muted-foreground">
+              {texts.description}{' '}
+              <Link href="/privacy" className="text-primary underline underline-offset-2">
+                კონფიდენციალურობის პოლიტიკა
+              </Link>
+            </p>
           </div>
-          <div className="space-y-4">
-            <div>
-              <h3 className="font-bold">{texts.title}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {texts.description}{' '}
-                <Link href="/privacy" className="cursor-pointer underline">
-                  კონფიდენციალურობის პოლიტიკა
-                </Link>
-              </p>
-            </div>
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <Button onClick={handleAccept} className="flex-1 cursor-pointer rounded-full">
-                {texts.accept}
-              </Button>
-              <Button onClick={handleDecline} variant="outline" className="flex-1 cursor-pointer rounded-full">
-                {texts.decline}
-              </Button>
-            </div>
-          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <button type="button" onClick={handleDecline} className="btn-ghost min-h-11 px-4">
+            {texts.decline}
+          </button>
+          <button type="button" onClick={handleAccept} className="btn-primary min-h-11 px-4">
+            {texts.accept}
+          </button>
         </div>
       </div>
     </div>

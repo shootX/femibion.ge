@@ -1,18 +1,12 @@
 import type { Product } from '@/lib/products'
 import { getActiveProducts } from '@/lib/products'
 
-export type ProductPageSlug = 'femibion-1' | 'femibion-2'
+import { pageSlugForProduct, type ProductPageSlug } from '@/lib/product-slug'
+
+export { pageSlugForProduct, type ProductPageSlug }
 
 const PRICE_VALID_UNTIL = `${new Date().getFullYear() + 1}-12-31`
 const BASE_URL = 'https://femibion.ge'
-
-export function pageSlugForProduct(product: { name: string }, index: number): ProductPageSlug | null {
-  if (/(^|[^0-9])2([^0-9]|$)/.test(product.name)) return 'femibion-2'
-  if (/(^|[^0-9])1([^0-9]|$)/.test(product.name)) return 'femibion-1'
-  if (index === 0) return 'femibion-1'
-  if (index === 1) return 'femibion-2'
-  return null
-}
 
 export async function getProductByPageSlug(slug: ProductPageSlug): Promise<Product | null> {
   const products = await getActiveProducts()

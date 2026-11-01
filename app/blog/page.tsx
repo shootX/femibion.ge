@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { getSiteTexts } from '@/lib/texts'
 import { getImagePaths } from '@/lib/images-server'
 import { getBlogPosts } from '@/lib/blog'
@@ -8,6 +7,7 @@ import { Footer } from '@/components/femibion/footer'
 import { BlogPostCard } from '@/components/femibion/blog-post-card'
 import { SiteBreadcrumbs } from '@/components/femibion/site-breadcrumbs'
 import { pageTitle } from '@/lib/seo'
+import { PageIntro } from '@/components/femibion/page-intro'
 
 export const revalidate = 3600
 
@@ -78,7 +78,7 @@ export default async function BlogPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(BLOG_BREADCRUMB_LD) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(blogListLd) }} />
       <Header texts={texts.header} images={images} />
-      <main className="section-pad">
+      <main className="pb-14 pt-6 md:pb-20 md:pt-8">
         <div className="wrap">
           <SiteBreadcrumbs
             items={[
@@ -86,26 +86,19 @@ export default async function BlogPage() {
               { label: 'ბლოგი' },
             ]}
           />
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{blogTexts.title}</h1>
-          {blogTexts.subtitle && (
-            <p className="mt-2 text-muted-foreground">{blogTexts.subtitle}</p>
-          )}
+          <PageIntro title={blogTexts.title} lead={blogTexts.subtitle} />
 
           {posts.length === 0 ? (
-            <p className="mt-10 text-muted-foreground">ბლოგ პოსტები ჯერ არ არის.</p>
+            <p className="panel-flat p-6 text-muted-foreground">სტატიები მალე დაემატება.</p>
           ) : (
-            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {posts.map((post) => (
-                <BlogPostCard key={post.slug} post={post} readMoreText={blogTexts.readMore} />
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {posts.map((post, i) => (
+                <div key={post.slug} className={i === 0 ? 'sm:col-span-2 lg:col-span-3' : undefined}>
+                  <BlogPostCard post={post} readMoreText={blogTexts.readMore} featured={i === 0} />
+                </div>
               ))}
             </div>
           )}
-
-          <div className="mt-12 text-center">
-            <Link href="/" className="text-sm font-medium text-primary hover:underline">
-              ← მთავარი გვერდი
-            </Link>
-          </div>
         </div>
       </main>
       <Footer texts={texts.footer} images={images} />

@@ -1,203 +1,100 @@
-# Design System Master File
+# Femibion Georgia — Design System ("გზამკვლევი")
 
-> **LOGIC:** When building a specific page, first check `design-system/pages/[page-name].md`.
-> If that file exists, its rules **override** this Master file.
-> If not, strictly follow the rules below.
+> **Logic:** when building a page, read this file first, then `pages/<page>.md` if it exists.
+> A page file only lists deviations from this master.
+>
+> **Source of truth for values:** `app/globals.css` (tokens + `@font-face`). This file explains them.
 
----
-
-**Project:** Femibion
-**Generated:** 2026-06-20 10:11:25
-**Category:** Healthcare App
-
----
-
-## Global Rules
-
-### Color Palette
-
-| Role | Hex | CSS Variable |
-|------|-----|--------------|
-| Primary | `#15803D` | `--color-primary` |
-| Secondary | `#22C55E` | `--color-secondary` |
-| CTA/Accent | `#0369A1` | `--color-cta` |
-| Background | `#F0FDF4` | `--color-background` |
-| Text | `#14532D` | `--color-text` |
-
-**Color Notes:** Pharmacy green + trust blue
-
-### Typography
-
-- **Heading Font:** Lora
-- **Body Font:** Raleway
-- **Mood:** calm, wellness, health, relaxing, natural, organic
-- **Google Fonts:** [Lora + Raleway](https://fonts.google.com/share?selection.family=Lora:wght@400;500;600;700|Raleway:wght@300;400;500;600;700)
-
-**CSS Import:**
-```css
-@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Raleway:wght@300;400;500;600;700&display=swap');
-```
-
-### Spacing Variables
-
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--space-xs` | `4px` / `0.25rem` | Tight gaps |
-| `--space-sm` | `8px` / `0.5rem` | Icon gaps, inline spacing |
-| `--space-md` | `16px` / `1rem` | Standard padding |
-| `--space-lg` | `24px` / `1.5rem` | Section padding |
-| `--space-xl` | `32px` / `2rem` | Large gaps |
-| `--space-2xl` | `48px` / `3rem` | Section margins |
-| `--space-3xl` | `64px` / `4rem` | Hero padding |
-
-### Shadow Depths
-
-| Level | Value | Usage |
-|-------|-------|-------|
-| `--shadow-sm` | `0 1px 2px rgba(0,0,0,0.05)` | Subtle lift |
-| `--shadow-md` | `0 4px 6px rgba(0,0,0,0.1)` | Cards, buttons |
-| `--shadow-lg` | `0 10px 15px rgba(0,0,0,0.1)` | Modals, dropdowns |
-| `--shadow-xl` | `0 20px 25px rgba(0,0,0,0.15)` | Hero images, featured cards |
+**Direction:** the store is a guide, not a shelf. The homepage opens with the question every
+customer has ("which Femibion do I need?") and answers it live with a week slider, then lets
+them buy without leaving the page. Calm, clear, app-like; colour always means something.
 
 ---
 
-## Component Specs
+## Colour
 
-### Buttons
+Brand anchors are sampled from the logo and the two packs. **Stage colours are semantic:**
+yellow always means Femibion 1 (planning – week 12), amber always means Femibion 2
+(week 13 – lactation). Never use them as decoration.
 
-```css
-/* Primary Button */
-.btn-primary {
-  background: #0369A1;
-  color: white;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 200ms ease;
-  cursor: pointer;
-}
+| Token | Hex | Tailwind | Use |
+| --- | --- | --- | --- |
+| `--primary` | `#522878` | `bg-primary`, `text-primary` | Logo plum. Primary buttons, links, focus ring. |
+| `--primary-hover` | `#43205f` | `bg-primary-hover` | Hover on primary buttons. |
+| `--foreground` | `#1f1729` | `text-foreground` | Body text, headings, dark cart pill. |
+| `--ink-soft` | `#3a3244` | `text-ink-soft` | Long-form reading text (articles, legal). |
+| `--muted-foreground` | `#615a6b` | `text-muted-foreground` | Secondary text (6:1 on background). |
+| `--background` | `#f4f2f7` | `bg-background` | Page ground. |
+| `--card` | `#ffffff` | `bg-card` | Panels and cards. |
+| `--border` | `#e9e4ef` | `border-border` | Card outlines, dividers. |
+| `--input` | `#978ca6` | `border-input` | Form control borders (≈3:1 on white). |
+| `--f1` / `--f1-wash` / `--f1-ink` | `#f2a91f` / `#fff2d6` / `#6b4500` | `bg-f1`, `bg-f1-wash`, `text-f1-ink` | Femibion 1: slider track, pack tiles, stage chips. |
+| `--f2` / `--f2-wash` / `--f2-ink` | `#e27a12` / `#fde6d1` / `#7c3900` | `bg-f2`, `bg-f2-wash`, `text-f2-ink` | Femibion 2: same roles. |
+| `--destructive` | `#b42318` | `text-destructive` | Form errors only. |
 
-.btn-primary:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
+Text on a wash uses the matching `-ink` (≥7:1). Pack photos sit on washes with
+`mix-blend-multiply` so their white background disappears.
 
-/* Secondary Button */
-.btn-secondary {
-  background: transparent;
-  color: #15803D;
-  border: 2px solid #15803D;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 200ms ease;
-  cursor: pointer;
-}
-```
+## Typography
 
-### Cards
+Self-hosted variable fonts (`public/fonts/`, SIL OFL), split by `unicode-range`:
 
-```css
-.card {
-  background: #F0FDF4;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: var(--shadow-md);
-  transition: all 200ms ease;
-  cursor: pointer;
-}
+- **Bricolage Grotesque** — Latin, digits and the ₾ sign. Its optical sizes make the big
+  week readout and prices feel drawn rather than typed.
+- **Noto Sans Georgian** — all Georgian text, including Mtavruli.
 
-.card:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
-}
-```
+One stack for everything: `font-sans` = Bricolage → Noto Sans Georgian → system.
 
-### Inputs
+| Role | Size / weight | Notes |
+| --- | --- | --- |
+| Hero h1 | 2rem → 3.2rem / 700 | `tracking-[-0.02em]`, `break-words` (long Georgian words) |
+| Inner page h1 (`PageIntro`) | 1.8rem → 2.9rem / 700 | |
+| Section h2 (`.section-heading`) | 1.75rem → 2.35rem / 700 | |
+| Week readout | 5rem → 7.5rem / 800 | `tabular-nums`, `tracking-[-0.05em]` |
+| Eyebrow (`.eyebrow`) | 12.5px / 700 | uppercase, `tracking-[0.07em]` |
+| Body | 16–17px / 400 | `leading-relaxed`; articles 17.5px / 1.75 |
 
-```css
-.input {
-  padding: 12px 16px;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  font-size: 16px;
-  transition: border-color 200ms ease;
-}
+Prices and quantities always use `tabular-nums`.
 
-.input:focus {
-  border-color: #15803D;
-  outline: none;
-  box-shadow: 0 0 0 3px #15803D20;
-}
-```
+## Shape, depth, spacing
 
-### Modals
+- Radii: panels **22px**, buttons **14px**, inputs and steppers **12px**, chips full.
+- `.panel` — white, soft shadow (`--shadow-panel`): the one or two things that matter on screen.
+- `.panel-flat` — white, 1px border, no shadow: everything else (cards, form, FAQ list).
+- Content width: `.wrap` (max 1180px, ≥20px side gutter incl. safe areas).
+- Sections: `py-12 md:py-16` on the homepage; inner pages `pt-6 md:pt-8`.
+- Group spacing with `gap`, not margins.
 
-```css
-.modal-overlay {
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-}
+## Components
 
-.modal {
-  background: white;
-  border-radius: 16px;
-  padding: 32px;
-  box-shadow: var(--shadow-xl);
-  max-width: 500px;
-  width: 90%;
-}
-```
+| Component | File | Notes |
+| --- | --- | --- |
+| Cart state | `components/femibion/cart.tsx` | `CartProvider` in the root layout, saved in `localStorage` (`femibion-cart-v1`). Fires GA4 `add_to_cart` + Meta `AddToCart`. |
+| Header | `header.tsx` | Logo, 4 links, dark cart pill (count badge + total), phone menu, phone cart bar (hides while `#order` is on screen). |
+| Stage finder | `stage-finder.tsx` | Week slider 0–41 (0 = planning, 41 = lactation), stage shortcuts, live recommendation with pack crossfade. Switch week comes from the editable `pregnancy.stages`. |
+| Add to cart | `AddToCartButton` in `stage-finder.tsx` | Confirms in place ("დამატებულია") for 1.3s. |
+| Qty stepper | `qty-stepper.tsx` | −/+ bound to the cart; shows "ამოიწურა" when stock is 0. |
+| Checkout | `order-form.tsx` | Inline validation on submit, focus moves to the first error; city autocomplete (combobox, keyboard), confirm dialog, same `submitOrder` action and analytics as before. |
+| FAQ | `faq-accordion.tsx` | One accordion for the homepage and `/faq`. |
+| Inner pages | `page-intro.tsx`, `site-breadcrumbs.tsx` | |
 
----
+Buttons: `.btn-primary` (plum) for the one action per area, `.btn-ghost` for secondary.
 
-## Style Guidelines
+## Motion
 
-**Style:** Accessible & Ethical
+Based on Emil Kowalski's rules (transform/opacity only, ease-out, < 300ms for UI):
 
-**Keywords:** High contrast, large text (16px+), keyboard navigation, screen reader friendly, WCAG compliant, focus state, semantic
+- `--ease-out: cubic-bezier(.23,1,.32,1)`, `--ease-drawer: cubic-bezier(.32,.72,0,1)`.
+- Press feedback: `press` utility → `scale(.97)` on `:active`.
+- One load moment: `.rise` on the homepage hero (stagger 70ms). Nothing else animates on scroll.
+- Pack crossfade in the recommendation (280ms, small blur to mask the swap).
+- Phone cart bar slides up with the drawer curve.
+- `prefers-reduced-motion` collapses all of it.
 
-**Best For:** Government, healthcare, education, inclusive products, large audience, legal compliance, public
+## Rules
 
-**Key Effects:** Clear focus rings (3-4px), ARIA labels, skip links, responsive design, reduced motion, 44x44px touch targets
-
-### Page Pattern
-
-**Pattern Name:** Social Proof-Focused
-
-- **CTA Placement:** Above fold
-- **Section Order:** Hero > Features > CTA
-
----
-
-## Anti-Patterns (Do NOT Use)
-
-- ❌ Bright neon colors
-- ❌ Motion-heavy animations
-- ❌ AI purple/pink gradients
-
-### Additional Forbidden Patterns
-
-- ❌ **Emojis as icons** — Use SVG icons (Heroicons, Lucide, Simple Icons)
-- ❌ **Missing cursor:pointer** — All clickable elements must have cursor:pointer
-- ❌ **Layout-shifting hovers** — Avoid scale transforms that shift layout
-- ❌ **Low contrast text** — Maintain 4.5:1 minimum contrast ratio
-- ❌ **Instant state changes** — Always use transitions (150-300ms)
-- ❌ **Invisible focus states** — Focus states must be visible for a11y
-
----
-
-## Pre-Delivery Checklist
-
-Before delivering any UI code, verify:
-
-- [ ] No emojis used as icons (use SVG instead)
-- [ ] All icons from consistent icon set (Heroicons/Lucide)
-- [ ] `cursor-pointer` on all clickable elements
-- [ ] Hover states with smooth transitions (150-300ms)
-- [ ] Light mode: text contrast 4.5:1 minimum
-- [ ] Focus states visible for keyboard navigation
-- [ ] `prefers-reduced-motion` respected
-- [ ] Responsive: 375px, 768px, 1024px, 1440px
-- [ ] No content hidden behind fixed navbars
-- [ ] No horizontal scroll on mobile
+- Colour encodes stage; never put f1/f2 colours on something unrelated to a pack.
+- No emoji icons (Lucide only), no gradients, no decorative numbering.
+- Every control ≥44px tall on touch, visible focus ring, labels on every input.
+- Don't hide content behind scroll-triggered reveals; the page must read correctly at rest.
+- Don't claim what the packaging doesn't (no "medical certified", no outdated manufacturer).

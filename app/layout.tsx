@@ -1,20 +1,14 @@
 import type { Metadata } from 'next'
 import Script from 'next/script'
-import localFont from 'next/font/local'
 import './globals.css'
 import { getSiteTexts } from '@/lib/texts'
 import { CookieConsent } from '@/components/femibion/cookie-consent'
 import { TelClickTracker } from '@/components/femibion/tel-click-tracker'
 import { MetaPageViews } from '@/components/femibion/meta-page-views'
+import { CartProvider } from '@/components/femibion/cart'
 
 const GA_ID = 'G-ZHB1WKDT66'
 const META_PIXEL_ID = '1660192815715456'
-
-const firaGo = localFont({
-  src: '../FiraGO-Medium.woff2',
-  variable: '--font-sans',
-  display: 'swap',
-})
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://femibion.ge'),
@@ -115,12 +109,14 @@ export default async function RootLayout({
         <link rel="icon" href="/icon-192.png?v=4" type="image/png" sizes="192x192" />
         <link rel="apple-touch-icon" href="/apple-icon.png" />
         <link rel="manifest" href="/manifest.json" />
+        <link rel="preload" href="/fonts/noto-sans-georgian.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
-        <meta name="theme-color" content="#a84f55" />
+        <meta name="theme-color" content="#522878" />
         <meta name="facebook-domain-verification" content="ovm2g3g0i6qfaae5nvvsyobxphvlxd" />
       </head>
-      <body className={`${firaGo.variable} font-sans antialiased`}>
+      <body className="font-sans antialiased">
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
           strategy="afterInteractive"
@@ -145,7 +141,7 @@ export default async function RootLayout({
             fbq('track', 'PageView');
           `}
         </Script>
-        {children}
+        <CartProvider items={texts.products.items}>{children}</CartProvider>
         <MetaPageViews />
         <TelClickTracker />
         <CookieConsent texts={texts.footer.cookies} />
