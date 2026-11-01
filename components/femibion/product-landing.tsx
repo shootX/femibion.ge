@@ -60,7 +60,7 @@ export async function productPageMetadata(slug: ProductPageSlug): Promise<Metada
       type: 'website',
       locale: 'ka_GE',
       siteName: 'Femibion Georgia',
-      images: [{ url: image, alt: `${product.name} — ${product.subtitle}` }],
+      images: [{ url: image, width: 600, height: 600, alt: `${product.name} — ${product.subtitle}` }],
     },
     twitter: {
       card: 'summary_large_image',
