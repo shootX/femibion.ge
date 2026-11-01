@@ -18,6 +18,15 @@ const nextConfig = {
     ],
   },
   compress: true,
+  async redirects() {
+    return [
+      {
+        source: '/blog/sheshupeba-orsulobaze',
+        destination: '/blog/shesheupeba-orsulobaze',
+        permanent: true,
+      },
+    ]
+  },
 }
 
 export default nextConfig

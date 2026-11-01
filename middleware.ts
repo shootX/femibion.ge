@@ -5,6 +5,7 @@ const OLD_TO_NEW_SLUGS: Record<string, string> = {
   'ორსულობის-დაგეგმვა-და-ვიტამინების-მნიშვნელობა': 'orsulobis-dagegmva-da-vitaminebis-mnishvneloba',
   'femibion-vs-femibion': 'femibion-1-tu-femibion-2',
   'dha-omega-3-orsulobaze': 'dha-omega-orsulobaze',
+  'sheshupeba-orsulobaze': 'shesheupeba-orsulobaze',
 }
 
 export const config = {
@@ -26,7 +27,7 @@ export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
   if (path.startsWith('/blog/')) {
     const raw = path.slice('/blog/'.length).split('?')[0]
-    const slug = decodeURIComponent(raw)
+    const slug = decodeURIComponent(raw).replace(/\/$/, '')
     const redirectTo = OLD_TO_NEW_SLUGS[slug]
     if (redirectTo) {
       return NextResponse.redirect(new URL(`/blog/${redirectTo}`, request.url), 301)
