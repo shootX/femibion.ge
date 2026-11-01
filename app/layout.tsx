@@ -90,17 +90,23 @@ export default async function RootLayout({
             __html: `
             window.dataLayer = window.dataLayer || [];
             window.gtag = function(){dataLayer.push(arguments);};
-            var granted = 'denied';
-            try {
-              if (localStorage.getItem('cookie-consent') === 'accepted') granted = 'granted';
-            } catch (e) {}
             window.gtag('consent', 'default', {
-              analytics_storage: granted,
-              ad_storage: granted,
-              ad_user_data: granted,
-              ad_personalization: granted,
+              analytics_storage: 'denied',
+              ad_storage: 'denied',
+              ad_user_data: 'denied',
+              ad_personalization: 'denied',
               wait_for_update: 500
             });
+            try {
+              if (localStorage.getItem('cookie-consent') === 'accepted') {
+                window.gtag('consent', 'update', {
+                  analytics_storage: 'granted',
+                  ad_storage: 'granted',
+                  ad_user_data: 'granted',
+                  ad_personalization: 'granted'
+                });
+              }
+            } catch (e) {}
           `,
           }}
         />

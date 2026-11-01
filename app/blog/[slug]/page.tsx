@@ -107,6 +107,8 @@ export default async function BlogPostPage({ params }: Props) {
     logo: {
       '@type': 'ImageObject',
       url: `${BASE_URL}/images/logo.webp`,
+      width: 591,
+      height: 591,
     },
   }
 
@@ -179,7 +181,6 @@ export default async function BlogPostPage({ params }: Props) {
                 src={post.image}
                 alt={imageAlt}
                 fill
-                unoptimized
                 className="object-cover"
                 priority
                 fetchPriority="high"

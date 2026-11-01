@@ -44,16 +44,19 @@ export function middleware(request: NextRequest) {
     'camera=(), microphone=(), geolocation=(), interest-cohort=()'
   )
   response.headers.set('X-DNS-Prefetch-Control', 'on')
+  // HSTS stays on the reverse proxy only. A second Strict-Transport-Security from Next
+  // makes preload checks fail (multiple headers).
   response.headers.set(
     'Content-Security-Policy-Report-Only',
     [
       "default-src 'self'",
       "base-uri 'self'",
       "form-action 'self' https://www.facebook.com",
+      "frame-ancestors 'self'",
       "object-src 'none'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://challenges.cloudflare.com https://connect.facebook.net",
-      "connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com https://*.googletagmanager.com https://challenges.cloudflare.com https://www.facebook.com",
-      "img-src 'self' data: blob: https://www.google-analytics.com https://www.googletagmanager.com https://www.facebook.com",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://*.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://challenges.cloudflare.com https://connect.facebook.net",
+      "connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com https://*.googletagmanager.com https://challenges.cloudflare.com https://www.facebook.com https://connect.facebook.net",
+      "img-src 'self' data: blob: https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com https://www.facebook.com https://*.facebook.com",
       "style-src 'self' 'unsafe-inline'",
       "font-src 'self' data:",
       "frame-src 'self' https://www.googletagmanager.com https://challenges.cloudflare.com https://www.facebook.com",
