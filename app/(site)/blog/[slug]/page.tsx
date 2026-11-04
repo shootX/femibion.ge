@@ -4,9 +4,10 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { getSiteTexts } from '@/lib/texts'
 import { getImagePaths } from '@/lib/images-server'
-import { getBlogPost, getBlogPosts, countWords, articleTitle, articleDescription, articleImageAlt, relatedPosts, formatPostDate } from '@/lib/blog'
-import { extractArticleFaq } from '@/lib/blog-content'
-import { Header } from '@/components/femibion/header'
+import { getBlogPost, getBlogPosts, countWords, articleTitle, articleDescription, articleImageAlt, relatedPosts, formatPostDate, type BlogPost } from '@/lib/blog'
+import { extractArticleFaq, splitBeforeFirstH2 } from '@/lib/blog-content'
+import { ArticleTool } from '@/components/femibion/article-calculators'
+import { articleTool } from '@/lib/article-tools'
 import { Footer } from '@/components/femibion/footer'
 import { ShareButtons } from '@/components/femibion/share-buttons'
 import { BlogMarkdown, BlogToc } from '@/components/femibion/blog-markdown'
@@ -18,9 +19,57 @@ import { cn } from '@/lib/utils'
 import { BLOG_COVER_HEIGHT, BLOG_COVER_WIDTH } from '@/lib/blog-image'
 
 export const revalidate = 3600
+export const dynamicParams = true
 
 type Props = { params: Promise<{ slug: string }> }
 const BASE_URL = 'https://femibion.ge'
+
+export async function generateStaticParams() {
+  const posts = await getBlogPosts()
+  return posts.map((post) => ({ slug: post.slug }))
+}
+
+function articleJsonLd(post: BlogPost, canonicalUrl: string, imageUrl: string) {
+  const publisher = {
+    '@type': 'Organization',
+    name: 'Femibion Georgia',
+    url: BASE_URL,
+    logo: {
+      '@type': 'ImageObject',
+      url: `${BASE_URL}/images/logo.webp`,
+      width: 591,
+      height: 591,
+    },
+  }
+  const reviewer = post.medicalReviewer?.name ? post.medicalReviewer : undefined
+  const author = post.author ? { '@type': 'Person', name: post.author } : publisher
+  const data: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': reviewer ? ['BlogPosting', 'MedicalWebPage'] : 'BlogPosting',
+    headline: post.title,
+    description: articleDescription(post),
+    image: [imageUrl],
+    datePublished: post.date,
+    dateModified: post.updatedAt || post.date,
+    author,
+    publisher,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalUrl },
+    inLanguage: 'ka-GE',
+    wordCount: countWords(post.content),
+  }
+  if (reviewer) {
+    const person: Record<string, unknown> = { '@type': 'Person', name: reviewer.name }
+    if (reviewer.specialty) person.jobTitle = reviewer.specialty
+    if (reviewer.workplace) person.affiliation = { '@type': 'Organization', name: reviewer.workplace }
+    if (reviewer.photo) {
+      person.image = reviewer.photo.startsWith('http') ? reviewer.photo : `${BASE_URL}${reviewer.photo}`
+    }
+    if (reviewer.bio) person.description = reviewer.bio
+    data.reviewedBy = person
+    if (post.reviewedAt) data.lastReviewed = post.reviewedAt
+  }
+  return data
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
@@ -68,7 +117,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       siteName: 'Femibion Georgia',
       publishedTime: post.date,
       modifiedTime: post.updatedAt || post.date,
-      authors: ['Femibion Georgia'],
+      authors: [post.author || 'Femibion Georgia'],
       section: 'ორსულობა და ვიტამინები',
       tags: ['Femibion', 'ფემიბიონი', 'ორსულობის ვიტამინები', 'პრენატალური ვიტამინები'],
       images: [{ url: imageUrl, alt: imageAlt, width: BLOG_COVER_WIDTH, height: BLOG_COVER_HEIGHT }],
@@ -100,32 +149,10 @@ export default async function BlogPostPage({ params }: Props) {
   const imageAlt = articleImageAlt(post)
   const faq = extractArticleFaq(post.content)
   const related = relatedPosts(posts, post.slug)
-  const publisher = {
-    '@type': 'Organization',
-    name: 'Femibion Georgia',
-    url: BASE_URL,
-    logo: {
-      '@type': 'ImageObject',
-      url: `${BASE_URL}/images/logo.webp`,
-      width: 591,
-      height: 591,
-    },
-  }
-
-  const articleLd = {
-    '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
-    headline: post.title,
-    description: articleDescription(post),
-    image: [imageUrl],
-    datePublished: published,
-    dateModified: modified,
-    author: publisher,
-    publisher,
-    mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalUrl },
-    inLanguage: 'ka-GE',
-    wordCount: countWords(post.content),
-  }
+  const articleLd = articleJsonLd(post, canonicalUrl, imageUrl)
+  const tool = articleTool(post.slug)
+  const parts = tool ? splitBeforeFirstH2(post.content) : null
+  const reviewer = post.medicalReviewer?.name ? post.medicalReviewer : undefined
 
   const breadcrumbLd = {
     '@context': 'https://schema.org',
@@ -156,7 +183,6 @@ export default async function BlogPostPage({ params }: Props) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       {faqLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />}
-      <Header texts={texts.header} images={images} />
       <main className="pb-14 pt-6 md:pb-20 md:pt-8">
         <div className="wrap">
           <SiteBreadcrumbs
@@ -174,6 +200,25 @@ export default async function BlogPostPage({ params }: Props) {
                 {modified !== published && <time dateTime={modified}>განახლდა {formatPostDate(modified)}</time>}
               </p>
               <h1 className="break-words text-[1.8rem] font-bold leading-[1.15] tracking-[-0.02em] sm:text-[2.6rem]">{post.title}</h1>
+              {reviewer && (
+                <p className="text-[15px] leading-relaxed text-muted-foreground">
+                  სამედიცინო რედაქცია:{' '}
+                  {reviewer.slug ? (
+                    <Link href={`/eqspertebi/${reviewer.slug}`} className="font-semibold text-primary underline underline-offset-2">
+                      დრ. {reviewer.name}
+                    </Link>
+                  ) : (
+                    <span className="font-semibold text-foreground">დრ. {reviewer.name}</span>
+                  )}
+                  {reviewer.specialty ? `, ${reviewer.specialty}` : ''}
+                  {post.reviewedAt ? (
+                    <>
+                      {' '}
+                      · გადახედილია <time dateTime={post.reviewedAt}>{formatPostDate(post.reviewedAt)}</time>
+                    </>
+                  ) : null}
+                </p>
+              )}
             </header>
 
             <div className="relative mb-8 aspect-video overflow-hidden rounded-[22px] bg-muted">
@@ -188,10 +233,35 @@ export default async function BlogPostPage({ params }: Props) {
               />
             </div>
 
-            <BlogToc content={post.content} />
+            <BlogToc content={post.content} leading={tool ? [{ id: tool.id, text: tool.title }] : []} />
             <div className="article-body">
-              <BlogMarkdown content={post.content} />
+              {parts ? (
+                <>
+                  <BlogMarkdown content={parts.intro} />
+                  <ArticleTool slug={post.slug} />
+                  <BlogMarkdown content={parts.rest} />
+                </>
+              ) : (
+                <BlogMarkdown content={post.content} />
+              )}
             </div>
+
+            {post.references && post.references.length > 0 && (
+              <section className="mt-10 border-t border-border pt-6" aria-labelledby="sources-title">
+                <h2 id="sources-title" className="mb-3 text-[1.3rem] font-bold">
+                  წყაროები
+                </h2>
+                <ol className="grid list-decimal gap-2 pl-5 text-[15px] leading-relaxed">
+                  {post.references.map((item) => (
+                    <li key={item.url}>
+                      <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2">
+                        {item.title}
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            )}
 
             <aside className="mt-10 grid gap-4 rounded-[22px] bg-f1-wash p-5 sm:p-7" aria-label="შეკვეთა">
               <div className="grid gap-1">

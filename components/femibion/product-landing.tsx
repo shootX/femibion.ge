@@ -5,13 +5,13 @@ import { notFound } from 'next/navigation'
 import { ArrowRight, Calculator, Check } from 'lucide-react'
 import { getSiteTexts } from '@/lib/texts'
 import { getImagePaths } from '@/lib/images-server'
-import { Header } from '@/components/femibion/header'
 import { Footer } from '@/components/femibion/footer'
 import { getProductByPageSlug, productJsonLd, type ProductPageSlug } from '@/lib/product-pages'
 import { pageTitle } from '@/lib/seo'
 import { MetaViewContent } from '@/components/femibion/meta-view-content'
 import { SiteBreadcrumbs } from '@/components/femibion/site-breadcrumbs'
 import { ProductBuyBox } from '@/components/femibion/product-buy-box'
+import { ProductInfo } from '@/components/femibion/product-info'
 import { cn } from '@/lib/utils'
 
 const BASE_URL = 'https://femibion.ge'
@@ -100,7 +100,6 @@ export async function ProductLanding({ slug }: { slug: ProductPageSlug }) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd(product, slug)) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <MetaViewContent id={slug} value={product.price ?? (slug === 'femibion-1' ? 100 : 140)} />
-      <Header texts={texts.header} images={images} />
       <main className="pb-14 pt-6 md:pb-20 md:pt-8">
         <div className="wrap">
           <SiteBreadcrumbs items={[{ href: '/', label: 'მთავარი' }, { label: product.name }]} />
@@ -165,6 +164,8 @@ export async function ProductLanding({ slug }: { slug: ProductPageSlug }) {
               </p>
             </div>
           </article>
+
+          <ProductInfo slug={slug} />
 
           <section className="mt-10 grid gap-4 md:mt-14 md:grid-cols-2" aria-label="სხვა ეტაპი">
             {other && (

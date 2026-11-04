@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { getSiteTexts } from '@/lib/texts'
 import { getImagePaths } from '@/lib/images-server'
-import { Header } from '@/components/femibion/header'
 import { StageFinder } from '@/components/femibion/stage-finder'
 import { HowItWorks } from '@/components/femibion/how-it-works'
 import { ProductCards } from '@/components/femibion/product-cards'
@@ -34,25 +33,16 @@ export const metadata: Metadata = {
   },
 }
 
-export default async function FemibionLandingPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ product?: string }>
-}) {
-  const [{ product }, texts, images] = await Promise.all([
-    searchParams,
-    getSiteTexts(),
-    getImagePaths(),
-  ])
+export default async function FemibionLandingPage() {
+  const [texts, images] = await Promise.all([getSiteTexts(), getImagePaths()])
   return (
     <div className="min-h-screen">
       <StructuredData />
-      <Header texts={texts.header} images={images} />
       <main>
         <StageFinder hero={texts.hero} pregnancy={texts.pregnancy} />
         <HowItWorks />
         <ProductCards texts={texts.products} />
-        <OrderForm texts={texts.order} preselectId={product} />
+        <OrderForm texts={texts.order} />
         <SeoContent texts={texts.seoContent} />
         <FaqSection />
       </main>

@@ -43,6 +43,9 @@ export function BlogEditor({ mode, post }: BlogEditorProps) {
     updatedAt: today,
     metaTitle: '',
     metaDescription: '',
+    author: '',
+    reviewedAt: '',
+    references: [],
   }
 
   const currentImage = imagePath ?? defaultValues.image
@@ -231,6 +234,51 @@ export function BlogEditor({ mode, post }: BlogEditorProps) {
               name="date"
               type="date"
               defaultValue={defaultValues.date.slice(0, 10)}
+            />
+          </div>
+          <div>
+            <Label htmlFor="author">ავტორი</Label>
+            <Input id="author" name="author" defaultValue={defaultValues.author ?? ''} placeholder="ცარიელი — არ გამოჩნდება" />
+          </div>
+          <div className="grid gap-3 rounded-lg border border-border p-3">
+            <p className="text-sm font-semibold">სამედიცინო რედაქცია</p>
+            <div>
+              <Label htmlFor="reviewerName">ექიმის სახელი</Label>
+              <Input id="reviewerName" name="reviewerName" defaultValue={defaultValues.medicalReviewer?.name ?? ''} placeholder="ცარიელი — ბლოკი არ გამოჩნდება" />
+            </div>
+            <div>
+              <Label htmlFor="reviewerSpecialty">სპეციალობა</Label>
+              <Input id="reviewerSpecialty" name="reviewerSpecialty" defaultValue={defaultValues.medicalReviewer?.specialty ?? ''} />
+            </div>
+            <div>
+              <Label htmlFor="reviewerWorkplace">სამუშაო ადგილი</Label>
+              <Input id="reviewerWorkplace" name="reviewerWorkplace" defaultValue={defaultValues.medicalReviewer?.workplace ?? ''} />
+            </div>
+            <div>
+              <Label htmlFor="reviewerSlug">slug (/eqspertebi/)</Label>
+              <Input id="reviewerSlug" name="reviewerSlug" defaultValue={defaultValues.medicalReviewer?.slug ?? ''} placeholder="მხოლოდ თუ გვერდი გვაქვს" />
+            </div>
+            <div>
+              <Label htmlFor="reviewerPhoto">ფოტო (ბილიკი)</Label>
+              <Input id="reviewerPhoto" name="reviewerPhoto" defaultValue={defaultValues.medicalReviewer?.photo ?? ''} />
+            </div>
+            <div>
+              <Label htmlFor="reviewerBio">მოკლე ბიო</Label>
+              <Textarea id="reviewerBio" name="reviewerBio" defaultValue={defaultValues.medicalReviewer?.bio ?? ''} rows={2} className="resize-none" />
+            </div>
+            <div>
+              <Label htmlFor="reviewedAt">გადახედვის თარიღი</Label>
+              <Input id="reviewedAt" name="reviewedAt" type="date" defaultValue={(defaultValues.reviewedAt ?? '').slice(0, 10)} />
+            </div>
+          </div>
+          <div>
+            <Label htmlFor="references">წყაროები (სათაური | ბმული, თითო ხაზზე)</Label>
+            <Textarea
+              id="references"
+              name="references"
+              defaultValue={(defaultValues.references ?? []).map((item) => `${item.title} | ${item.url}`).join('\n')}
+              rows={3}
+              className="resize-none"
             />
           </div>
           <div>

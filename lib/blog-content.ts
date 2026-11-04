@@ -25,6 +25,14 @@ export function headingId(text: string, index: number): string {
   return `s${index}-${slug || 'section'}`
 }
 
+/** Paragraphs before the first real H2, and the rest. Used to insert a tool after the intro. */
+export function splitBeforeFirstH2(content: string): { intro: string; rest: string } {
+  const lines = content.split('\n')
+  const idx = lines.findIndex((line) => /^##(?!#)\s+/.test(line.trim()))
+  if (idx === -1) return { intro: content, rest: '' }
+  return { intro: lines.slice(0, idx).join('\n'), rest: lines.slice(idx).join('\n') }
+}
+
 export function extractToc(content: string): TocItem[] {
   const items: TocItem[] = []
   for (const line of content.split('\n')) {

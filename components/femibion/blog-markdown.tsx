@@ -103,8 +103,8 @@ export function BlogMarkdown({ content }: { content: string }) {
   return <>{blocks}</>
 }
 
-export function BlogToc({ content }: { content: string }) {
-  const toc: TocItem[] = extractToc(content)
+export function BlogToc({ content, leading = [] }: { content: string; leading?: TocItem[] }) {
+  const toc: TocItem[] = [...leading, ...extractToc(content)]
   if (toc.length < 3) return null
 
   return (

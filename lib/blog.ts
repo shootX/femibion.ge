@@ -1,5 +1,22 @@
+import { cache } from 'react'
 import { readFile, writeFile } from 'fs/promises'
 import { join } from 'path'
+
+export const RETIRED_SLUGS = new Set(['dzilis-problemebi-orsulobisas'])
+
+export type MedicalReviewer = {
+  name: string
+  specialty?: string
+  workplace?: string
+  photo?: string
+  bio?: string
+  slug?: string
+}
+
+export type BlogReference = {
+  title: string
+  url: string
+}
 
 export type BlogPost = {
   slug: string
@@ -12,6 +29,10 @@ export type BlogPost = {
   updatedAt?: string
   metaTitle?: string
   metaDescription?: string
+  author?: string
+  medicalReviewer?: MedicalReviewer
+  reviewedAt?: string
+  references?: BlogReference[]
 }
 
 const BLOG_FILE = 'data/blog-posts.json'
@@ -23,28 +44,17 @@ function getBlogPath(): string {
 
 const DEFAULT_IMAGE = '/images/hero-pregnant-woman.webp'
 
-export async function getBlogPosts(): Promise<BlogPost[]> {
+export const getBlogPosts = cache(async function getBlogPosts(): Promise<BlogPost[]> {
   try {
     const path = getBlogPath()
     const data = await readFile(path, 'utf-8')
-    const raw = JSON.parse(data) as Array<Partial<BlogPost>>
-    const posts: BlogPost[] = raw.map((p) => ({
-      slug: p.slug ?? '',
-      title: p.title ?? '',
-      excerpt: p.excerpt ?? '',
-      content: p.content ?? '',
-      image: p.image ?? DEFAULT_IMAGE,
-      imageAlt: optionalText(p.imageAlt),
-      date: p.date ?? new Date().toISOString().slice(0, 10),
-      updatedAt: optionalText(p.updatedAt),
-      metaTitle: optionalText(p.metaTitle),
-      metaDescription: optionalText(p.metaDescription),
-    }))
+    const raw = JSON.parse(data) as Array<Record<string, unknown>>
+    const posts = raw.map(normalizePost).filter((post) => post.slug && !RETIRED_SLUGS.has(post.slug))
     return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
   } catch {
     return []
   }
-}
+})
 
 export async function getBlogPost(slug: string): Promise<BlogPost | null> {
   const posts = await getBlogPosts()
@@ -82,6 +92,14 @@ export async function updateBlogPost(
   if ('metaTitle' in updates) next.metaTitle = optionalText(updates.metaTitle)
   if ('metaDescription' in updates) next.metaDescription = optionalText(updates.metaDescription)
   if ('updatedAt' in updates) next.updatedAt = optionalText(updates.updatedAt) || posts[idx].updatedAt
+  if ('author' in updates) next.author = optionalText(updates.author)
+  if ('reviewedAt' in updates) next.reviewedAt = optionalText(updates.reviewedAt)
+  if ('medicalReviewer' in updates) {
+    next.medicalReviewer = updates.medicalReviewer?.name ? updates.medicalReviewer : undefined
+  }
+  if ('references' in updates) {
+    next.references = updates.references?.length ? updates.references : undefined
+  }
   posts[idx] = next
   await savePosts(posts)
   return posts[idx]
@@ -103,6 +121,86 @@ function optionalText(value: unknown): string | undefined {
   if (typeof value !== 'string') return undefined
   const trimmed = value.trim()
   return trimmed || undefined
+}
+
+function normalizeReviewer(value: unknown): MedicalReviewer | undefined {
+  if (!value || typeof value !== 'object') return undefined
+  const raw = value as Record<string, unknown>
+  const name = optionalText(raw.name)
+  if (!name) return undefined
+  return {
+    name,
+    specialty: optionalText(raw.specialty),
+    workplace: optionalText(raw.workplace),
+    photo: optionalText(raw.photo),
+    bio: optionalText(raw.bio),
+    slug: optionalText(raw.slug),
+  }
+}
+
+function normalizeReferences(value: unknown): BlogReference[] | undefined {
+  if (!Array.isArray(value)) return undefined
+  const items = value.flatMap((item) => {
+    if (!item || typeof item !== 'object') return []
+    const raw = item as Record<string, unknown>
+    const title = optionalText(raw.title)
+    const url = optionalText(raw.url)
+    return title && url ? [{ title, url }] : []
+  })
+  return items.length ? items : undefined
+}
+
+/** Keeps unknown keys so a live JSON file with extra posts/fields survives an admin save. */
+function normalizePost(raw: Record<string, unknown>): BlogPost {
+  const reviewer = normalizeReviewer(raw.medicalReviewer)
+  const references = normalizeReferences(raw.references)
+  const post: BlogPost = {
+    ...(raw as unknown as BlogPost),
+    slug: optionalText(raw.slug) ?? '',
+    title: optionalText(raw.title) ?? '',
+    excerpt: typeof raw.excerpt === 'string' ? raw.excerpt : '',
+    content: typeof raw.content === 'string' ? raw.content : '',
+    image: optionalText(raw.image) ?? DEFAULT_IMAGE,
+    imageAlt: optionalText(raw.imageAlt),
+    date: optionalText(raw.date) ?? new Date().toISOString().slice(0, 10),
+    updatedAt: optionalText(raw.updatedAt),
+    metaTitle: optionalText(raw.metaTitle),
+    metaDescription: optionalText(raw.metaDescription),
+    author: optionalText(raw.author),
+    medicalReviewer: reviewer,
+    reviewedAt: optionalText(raw.reviewedAt),
+    references,
+  }
+  if (!post.author) delete post.author
+  if (!post.medicalReviewer) delete post.medicalReviewer
+  if (!post.reviewedAt) delete post.reviewedAt
+  if (!post.references) delete post.references
+  if (!post.imageAlt) delete post.imageAlt
+  if (!post.updatedAt) delete post.updatedAt
+  if (!post.metaTitle) delete post.metaTitle
+  if (!post.metaDescription) delete post.metaDescription
+  return post
+}
+
+export type ExpertProfile = MedicalReviewer & {
+  slug: string
+  articles: Array<{ slug: string; title: string; reviewedAt?: string }>
+}
+
+export function expertsFromPosts(posts: BlogPost[]): ExpertProfile[] {
+  const map = new Map<string, ExpertProfile>()
+  for (const post of posts) {
+    const reviewer = post.medicalReviewer
+    if (!reviewer?.name || !reviewer.slug) continue
+    const article = { slug: post.slug, title: post.title, reviewedAt: post.reviewedAt }
+    const existing = map.get(reviewer.slug)
+    if (!existing) {
+      map.set(reviewer.slug, { ...reviewer, slug: reviewer.slug, articles: [article] })
+      continue
+    }
+    existing.articles.push(article)
+  }
+  return [...map.values()]
 }
 
 export function articleTitle(post: BlogPost): string {
