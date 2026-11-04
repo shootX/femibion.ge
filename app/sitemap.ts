@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next'
 import { stat } from 'fs/promises'
 import { join } from 'path'
 import { unstable_noStore } from 'next/cache'
-import { getBlogPosts } from '@/lib/blog'
+import { expertsFromPosts, getBlogPosts } from '@/lib/blog'
 import { getPrivacyPolicy } from '@/lib/privacy-policy'
 
 export const dynamic = 'force-dynamic'
@@ -39,11 +39,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date()
 
   try {
-    const [posts, privacy, faqUpdated, productsUpdated] = await Promise.all([
+    const [posts, privacy, faqUpdated, productsUpdated, productCopyUpdated] = await Promise.all([
       getBlogPosts(),
       getPrivacyPolicy(),
       fileMtime('data/faq.json'),
       fileMtime('data/products.json'),
+      fileMtime('components/femibion/product-info.tsx'),
     ])
 
     const seenSlugs = new Set<string>()
@@ -65,6 +66,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       now
     )
     const privacyUpdated = safeDate(privacy.updatedAt, now)
+    const productUpdated = latestDate(
+      [productsUpdated, productCopyUpdated].filter((date): date is Date => date instanceof Date),
+      now
+    )
+    const expertPages: MetadataRoute.Sitemap = expertsFromPosts(posts).map((expert) => ({
+      url: `${BASE_URL}/eqspertebi/${encodeURIComponent(expert.slug)}`,
+      lastModified: latestDate(
+        expert.articles
+          .map((article) => safeDate(article.reviewedAt, new Date(0)))
+          .filter((date) => date.getTime() > 0),
+        now
+      ),
+      changeFrequency: 'monthly' as const,
+      priority: 0.4,
+    }))
+
     const homeUpdated = latestDate(
       [blogUpdated, privacyUpdated, faqUpdated, productsUpdated].filter((date): date is Date => date instanceof Date),
       now
@@ -72,13 +89,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     return [
       { url: BASE_URL, lastModified: homeUpdated, changeFrequency: 'weekly', priority: 1 },
-      { url: `${BASE_URL}/femibion-1`, lastModified: productsUpdated ?? now, changeFrequency: 'weekly', priority: 0.9 },
-      { url: `${BASE_URL}/femibion-2`, lastModified: productsUpdated ?? now, changeFrequency: 'weekly', priority: 0.9 },
+      { url: `${BASE_URL}/femibion-1`, lastModified: productUpdated, changeFrequency: 'weekly', priority: 0.9 },
+      { url: `${BASE_URL}/femibion-2`, lastModified: productUpdated, changeFrequency: 'weekly', priority: 0.9 },
       { url: `${BASE_URL}/blog`, lastModified: blogUpdated, changeFrequency: 'weekly', priority: 0.8 },
       { url: `${BASE_URL}/faq`, lastModified: faqUpdated ?? now, changeFrequency: 'monthly', priority: 0.6 },
       { url: `${BASE_URL}/privacy`, lastModified: privacyUpdated, changeFrequency: 'monthly', priority: 0.5 },
       { url: `${BASE_URL}/terms`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
       ...blogPages,
+      ...expertPages,
     ]
   } catch (error) {
     console.error('sitemap failed', error)

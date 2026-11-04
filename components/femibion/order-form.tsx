@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useId, useMemo, useRef, useState } from 'react'
+import { Suspense, useEffect, useId, useMemo, useRef, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Check, ChevronDown, Loader2, Truck } from 'lucide-react'
@@ -53,6 +54,22 @@ const inputClass =
 
 function formatPhone(digits: string) {
   return digits.replace(/(\d{3})(\d{2})(\d{2})(\d{2})/, '$1 $2 $3 $4')
+}
+
+function PreselectFromQuery() {
+  const params = useSearchParams()
+  const preselectId = params.get('product') || undefined
+  const { products, qty, ready, setQty } = useCart()
+  const preselected = useRef(false)
+
+  useEffect(() => {
+    if (!ready || preselected.current || !preselectId) return
+    preselected.current = true
+    const product = products.find((p) => p.id === preselectId)
+    if (product && product.inStock && !(qty[product.id] > 0)) setQty(product.id, 1)
+  }, [ready, preselectId, products, qty, setQty])
+
+  return null
 }
 
 export function OrderForm({ texts, preselectId }: { texts: OrderTexts; preselectId?: string }) {
@@ -204,6 +221,9 @@ export function OrderForm({ texts, preselectId }: { texts: OrderTexts; preselect
 
   return (
     <section id="order" className="py-12 md:py-16" aria-labelledby="order-title">
+      <Suspense fallback={null}>
+        <PreselectFromQuery />
+      </Suspense>
       <div className="wrap">
         <div className="mb-6 grid max-w-[44rem] justify-items-start gap-2">
           <h2 id="order-title" className="section-heading">

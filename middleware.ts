@@ -6,6 +6,7 @@ const OLD_TO_NEW_SLUGS: Record<string, string> = {
   'femibion-vs-femibion': 'femibion-1-tu-femibion-2',
   'dha-omega-3-orsulobaze': 'dha-omega-orsulobaze',
   'sheshupeba-orsulobaze': 'shesheupeba-orsulobaze',
+  'dzilis-problemebi-orsulobisas': 'dzili-orsulobaze',
 }
 
 export const config = {

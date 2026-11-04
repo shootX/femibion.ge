@@ -36,7 +36,7 @@ export function productJsonLd(product: Product, slug: ProductPageSlug) {
       url,
       availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       itemCondition: 'https://schema.org/NewCondition',
-      price: product.price ?? 0,
+      price: product.price ?? (slug === 'femibion-1' ? 100 : 140),
       priceCurrency: 'GEL',
       priceValidUntil: PRICE_VALID_UNTIL,
       seller: { '@id': `${BASE_URL}/#organization` },

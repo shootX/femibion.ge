@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { getSiteTexts } from '@/lib/texts'
 import { getImagePaths } from '@/lib/images-server'
 import { getBlogPosts } from '@/lib/blog'
-import { Header } from '@/components/femibion/header'
 import { Footer } from '@/components/femibion/footer'
 import { BlogPostCard } from '@/components/femibion/blog-post-card'
 import { SiteBreadcrumbs } from '@/components/femibion/site-breadcrumbs'
@@ -77,7 +76,6 @@ export default async function BlogPage() {
     <div className="min-h-screen">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(BLOG_BREADCRUMB_LD) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(blogListLd) }} />
-      <Header texts={texts.header} images={images} />
       <main className="pb-14 pt-6 md:pb-20 md:pt-8">
         <div className="wrap">
           <SiteBreadcrumbs

@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { getSiteTexts } from '@/lib/texts'
 import { getImagePaths } from '@/lib/images-server'
 import { getPrivacyPolicy } from '@/lib/privacy-policy'
-import { Header } from '@/components/femibion/header'
 import { Footer } from '@/components/femibion/footer'
 import { LegalEntityNotice } from '@/components/femibion/legal-entity-notice'
 import { SiteBreadcrumbs } from '@/components/femibion/site-breadcrumbs'
@@ -85,7 +84,6 @@ export default async function PrivacyPage() {
 
   return (
     <div className="min-h-screen">
-      <Header texts={texts.header} images={images} />
       <main className="pb-14 pt-6 md:pb-20 md:pt-8">
         <div className="wrap">
           <SiteBreadcrumbs items={[{ href: '/', label: 'მთავარი' }, { label: policy.title }]} />

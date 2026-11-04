@@ -1,6 +1,6 @@
 import { readFile, writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
-import { unstable_noStore } from 'next/cache'
+import { revalidatePath } from 'next/cache'
 
 export type Product = {
   id: string
@@ -123,7 +123,6 @@ async function seedFromSiteTexts(): Promise<ProductsFile> {
 }
 
 async function readProductsFile(): Promise<ProductsFile> {
-  unstable_noStore()
   try {
     const data = await readFile(getProductsPath(), 'utf-8')
     const parsed = JSON.parse(data) as ProductsFile
@@ -276,6 +275,9 @@ export async function adjustStockByLineItems(
   }
 
   await writeProductsFile(data)
+  revalidatePath('/')
+  revalidatePath('/femibion-1')
+  revalidatePath('/femibion-2')
 }
 
 export function parseFeaturesInput(value: string): string[] {

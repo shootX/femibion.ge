@@ -5,13 +5,43 @@ import { revalidatePath } from 'next/cache'
 import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { isAdmin } from '@/lib/auth'
-import { addBlogPost, updateBlogPost, deleteBlogPost } from '@/lib/blog'
+import { addBlogPost, updateBlogPost, deleteBlogPost, type BlogReference, type MedicalReviewer } from '@/lib/blog'
 import { slugify } from '@/lib/slugify'
 
 function optionalField(value: FormDataEntryValue | null): string | undefined {
   if (typeof value !== 'string') return undefined
   const trimmed = value.trim()
   return trimmed || undefined
+}
+
+function parseReviewer(formData: FormData): MedicalReviewer | undefined {
+  const name = optionalField(formData.get('reviewerName'))
+  if (!name) return undefined
+  const reviewer: MedicalReviewer = { name }
+  const specialty = optionalField(formData.get('reviewerSpecialty'))
+  const workplace = optionalField(formData.get('reviewerWorkplace'))
+  const photo = optionalField(formData.get('reviewerPhoto'))
+  const bio = optionalField(formData.get('reviewerBio'))
+  const slug = optionalField(formData.get('reviewerSlug'))
+  if (specialty) reviewer.specialty = specialty
+  if (workplace) reviewer.workplace = workplace
+  if (photo) reviewer.photo = photo
+  if (bio) reviewer.bio = bio
+  if (slug) reviewer.slug = slug
+  return reviewer
+}
+
+function parseReferences(value: FormDataEntryValue | null): BlogReference[] | undefined {
+  if (typeof value !== 'string') return undefined
+  const items = value
+    .split('\n')
+    .map((line) => {
+      const [title, url] = line.split('|').map((part) => part.trim())
+      if (!title || !url) return null
+      return { title, url }
+    })
+    .filter((item): item is BlogReference => item !== null)
+  return items.length ? items : undefined
 }
 
 export async function uploadBlogImage(formData: FormData): Promise<{ path?: string; error?: string }> {
@@ -69,6 +99,10 @@ export async function createPost(formData: FormData) {
       updatedAt,
       metaTitle: optionalField(formData.get('metaTitle')),
       metaDescription: optionalField(formData.get('metaDescription')),
+      author: optionalField(formData.get('author')),
+      medicalReviewer: parseReviewer(formData),
+      reviewedAt: optionalField(formData.get('reviewedAt')),
+      references: parseReferences(formData.get('references')),
     })
     revalidatePath('/adminpc/blog')
     revalidatePath('/blog')
@@ -108,6 +142,10 @@ export async function updatePost(formData: FormData) {
       updatedAt,
       metaTitle: optionalField(formData.get('metaTitle')),
       metaDescription: optionalField(formData.get('metaDescription')),
+      author: optionalField(formData.get('author')),
+      medicalReviewer: parseReviewer(formData),
+      reviewedAt: optionalField(formData.get('reviewedAt')),
+      references: parseReferences(formData.get('references')),
     })
     if (!updated) return { error: 'პოსტი ვერ მოიძებნა' }
     revalidatePath('/adminpc/blog')
@@ -115,6 +153,7 @@ export async function updatePost(formData: FormData) {
     revalidatePath(`/blog/${oldSlug}`)
     if (slug !== oldSlug) revalidatePath(`/blog/${slug}`)
     revalidatePath('/sitemap.xml')
+    if (updated.medicalReviewer?.slug) revalidatePath(`/eqspertebi/${updated.medicalReviewer.slug}`)
     return { success: true }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'შეცდომა' }
