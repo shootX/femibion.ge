@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next'
 import { stat } from 'fs/promises'
 import { join } from 'path'
 import { unstable_noStore } from 'next/cache'
-import { expertsFromPosts, getBlogPosts } from '@/lib/blog'
+import { RETIRED_SLUGS, expertsFromPosts, getBlogPosts } from '@/lib/blog'
 import { getPrivacyPolicy } from '@/lib/privacy-policy'
 
 export const dynamic = 'force-dynamic'
@@ -51,7 +51,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const blogPages: MetadataRoute.Sitemap = []
     for (const post of posts) {
       const slug = post.slug.trim()
-      if (!slug || seenSlugs.has(slug) || /[\s/?#\\]/.test(slug) || slug.includes('..')) continue
+      if (!slug || RETIRED_SLUGS.has(slug) || seenSlugs.has(slug) || /[\s/?#\\]/.test(slug) || slug.includes('..')) continue
       seenSlugs.add(slug)
       blogPages.push({
         url: `${BASE_URL}/blog/${encodeURIComponent(slug)}`,

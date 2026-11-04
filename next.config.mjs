@@ -44,7 +44,16 @@ const nextConfig = {
       { key: 'CDN-Cache-Control', value: 'public, s-maxage=3600, stale-while-revalidate=60' },
     ]
     const pages = ['/', '/femibion-1', '/femibion-2', '/blog', '/blog/:path*', '/faq', '/privacy', '/terms']
-    return pages.map((source) => ({ source, headers: htmlCache }))
+    return [
+      ...pages.map((source) => ({ source, headers: htmlCache })),
+      {
+        source: '/sitemap.xml',
+        headers: [
+          { key: 'Cache-Control', value: 'no-cache, must-revalidate' },
+          { key: 'CDN-Cache-Control', value: 'no-store' },
+        ],
+      },
+    ]
   },
 }
 
